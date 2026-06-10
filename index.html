@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WarrantyClaim Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f7fb;--sf:#ffffff;--sf2:#f0f3f9;--sf3:#e8edf6;--bd:#e2e8f2;--bd2:#cdd6e6;--ac:#3b82f6;--ac2:#8b5cf6;--ok:#16a34a;--warn:#ea9a0c;--err:#e11d48;--tx:#1e293b;--tx2:#64748b;--tx3:#94a3b8;--mo:'DM Mono',monospace;--sa:'Syne',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--sa);min-height:100vh}
+.fc,.kp,.ctw,.ncpan,.mod,.upzone{box-shadow:0 1px 3px rgba(15,23,42,.04),0 1px 2px rgba(15,23,42,.03)}
+#app{display:none;flex-direction:column;min-height:100vh}
+#app.on{display:flex}
+#login{display:flex;min-height:100vh;align-items:center;justify-content:center;padding:20px}
+#login.off{display:none}
+.login-card{background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:36px;width:100%;max-width:400px;box-shadow:0 10px 40px rgba(15,23,42,.08)}
+.login-logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;letter-spacing:.04em;margin-bottom:6px;justify-content:center}
+.login-logo .ldot{width:9px;height:9px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px rgba(59,130,246,.5)}
+.login-sub{text-align:center;color:var(--tx2);font-size:12px;font-family:var(--mo);margin-bottom:26px}
+.login-field{margin-bottom:14px}
+.login-field label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--tx2);font-family:var(--mo);display:block;margin-bottom:5px}
+.login-field input,.login-field select{width:100%;background:var(--sf);border:1px solid var(--bd2);border-radius:10px;color:var(--tx);font-family:var(--mo);font-size:13px;padding:11px 13px;outline:none;transition:all .15s}
+.login-field input:focus,.login-field select:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(59,130,246,.13)}
+.login-tabs{display:flex;gap:6px;margin-bottom:22px;background:var(--sf2);padding:4px;border-radius:11px}
+.login-tab{flex:1;padding:9px;text-align:center;font-size:12px;font-weight:700;border-radius:8px;cursor:pointer;color:var(--tx2);transition:all .15s}
+.login-tab.on{background:var(--sf);color:var(--ac);box-shadow:0 1px 3px rgba(15,23,42,.08)}
+.login-btn{width:100%;background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--sa);margin-top:8px;box-shadow:0 1px 3px rgba(59,130,246,.3)}
+.login-btn:hover{background:#2563eb}
+.login-hint{margin-top:18px;padding:11px 13px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.18);border-radius:9px;font-size:11px;color:var(--ac);font-family:var(--mo);line-height:1.6}
+.login-err{margin-top:12px;padding:9px 12px;background:rgba(225,29,72,.08);border:1px solid rgba(225,29,72,.2);border-radius:8px;font-size:11px;color:var(--err);font-family:var(--mo);display:none}
+.login-err.on{display:block}
+.topbar{background:var(--sf);border-bottom:1px solid var(--bd);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(15,23,42,.05)}
+.logo{font-size:14px;font-weight:800;letter-spacing:.05em;display:flex;align-items:center;gap:9px}
+.ldot{width:8px;height:8px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px rgba(59,130,246,.5)}
+.ntabs{display:flex;gap:3px}
+.ntab{padding:5px 14px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--tx2);font-family:var(--sa);transition:all .15s}
+.ntab:hover{background:var(--sf2);color:var(--tx)}
+.ntab.on{background:rgba(59,130,246,.1);color:var(--ac)}
+.uchip{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--tx2);font-family:var(--mo)}
+.uav{width:28px;height:28px;border-radius:50%;background:var(--ac2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
+.logout-btn{background:var(--sf2);border:1px solid var(--bd2);border-radius:8px;padding:5px 11px;font-size:11px;color:var(--tx2);cursor:pointer;font-family:var(--mo)}
+.logout-btn:hover{color:var(--err);border-color:var(--err)}
+.view{display:none;flex:1;flex-direction:column}
+.view.on{display:flex}
+#vs{padding:32px 28px;gap:16px;max-width:880px;margin:0 auto;width:100%}
+.fhdr h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:3px}
+.fhdr p{color:var(--tx2);font-size:11px;font-family:var(--mo)}
+.pbar{display:flex;border-radius:12px;overflow:hidden;border:1px solid var(--bd);background:var(--sf)}
+.pst{flex:1;padding:8px 6px;font-size:10px;font-weight:600;color:var(--tx3);background:var(--sf);text-align:center;transition:all .2s;border-right:1px solid var(--bd);letter-spacing:.03em;text-transform:uppercase}
+.pst:last-child{border-right:none}
+.pst.on{background:var(--sf3);color:var(--ac)}
+.pst.dn{background:var(--sf2);color:var(--ok)}
+.fstep{display:none}
+.fstep.on{display:block}
+.si{display:flex;flex-direction:column;gap:16px}
+.fc{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:24px}
+.fc h2{font-size:13px;font-weight:700;margin-bottom:16px;padding-bottom:9px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
+.stag{font-family:var(--mo);font-size:10px;font-weight:400;background:var(--sf3);color:var(--ac);padding:2px 7px;border-radius:4px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.fd{display:flex;flex-direction:column;gap:5px}
+.fd.s2{grid-column:span 2}
+label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--tx2);font-family:var(--mo)}
+label .rq{color:var(--err);margin-left:2px}
+label .opt{color:var(--tx3);font-weight:400;text-transform:none;letter-spacing:0}
+input,select,textarea{background:var(--sf);border:1px solid var(--bd2);border-radius:9px;color:var(--tx);font-family:var(--mo);font-size:12px;padding:9px 12px;transition:border-color .15s,box-shadow .15s;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(59,130,246,.13)}
+select{cursor:pointer}
+textarea{resize:vertical;min-height:64px}
+.fhint{font-size:10px;color:var(--tx3);font-family:var(--mo)}
+.cb{background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.15);border-left:3px solid var(--ac2);border-radius:12px;padding:16px;display:none;margin-top:14px}
+.cb.on{display:block}
+.cb h3{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ac2);margin-bottom:11px;font-family:var(--mo);display:flex;align-items:center;gap:6px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);text-align:left;padding:6px 6px;border-bottom:1px solid var(--bd);font-family:var(--mo)}
+.tbl td{padding:3px 3px}
+.tbl td input{padding:5px 8px;font-size:11px}
+.btn{padding:9px 18px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;border:none;font-family:var(--sa);transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.bp{background:var(--ac);color:#fff;box-shadow:0 1px 3px rgba(59,130,246,.3)}.bp:hover{background:#2563eb;transform:translateY(-1px)}
+.bs{background:var(--ok);color:#fff}
+.bd_{background:var(--err);color:#fff}
+.bg{background:transparent;color:var(--tx2);border:1px solid var(--bd)}.bg:hover{color:var(--tx);border-color:var(--bd2)}
+.bsm{padding:4px 10px;font-size:11px}
+.fa{display:flex;justify-content:flex-end;gap:8px;margin-top:2px}
+.dvd{height:1px;background:var(--bd);margin:14px 0}
+.upzone{border:2px dashed var(--bd2);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;background:var(--sf2)}
+.upzone:hover,.upzone.drag{border-color:var(--ac);background:rgba(59,130,246,.06)}
+.upzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upzone-ico{font-size:20px;margin-bottom:4px}
+.upzone-lbl{font-size:11px;color:var(--tx2);font-family:var(--mo)}
+.upzone-sub{font-size:10px;color:var(--tx3);font-family:var(--mo);margin-top:2px}
+.file-list{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+.fi{display:flex;align-items:center;gap:7px;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:6px 9px}
+.fi-ico{font-size:13px;flex-shrink:0}
+.fi-name{flex:1;font-size:11px;font-family:var(--mo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fi-sz{font-size:10px;color:var(--tx3);font-family:var(--mo)}
+.fi-rm{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:12px;flex-shrink:0}.fi-rm:hover{color:var(--err)}
+.ssc{display:none;flex-direction:column;align-items:center;gap:12px;padding:50px 32px;text-align:center}
+.ssc.on{display:flex}
+.ssi{width:68px;height:68px;border-radius:50%;background:rgba(22,163,74,.12);border:2px solid var(--ok);display:flex;align-items:center;justify-content:center;font-size:28px}
+.cid{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:16px 32px;font-family:var(--mo);font-size:20px;color:var(--ac);letter-spacing:.1em}
+#vd,#vdl,#vnc,#vrate,#vnet{padding:24px 28px;gap:18px}
+.dh{display:flex;justify-content:space-between;align-items:flex-end}
+.dh h1{font-size:19px;font-weight:800;letter-spacing:-.02em}
+.dh p{color:var(--tx2);font-size:11px;font-family:var(--mo);margin-top:2px}
+.kg{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.kg4{grid-template-columns:repeat(4,1fr)}
+.kp{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px 16px}
+.kl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--tx3);font-family:var(--mo);margin-bottom:4px}
+.kv{font-size:22px;font-weight:800}
+.ks{font-size:10px;color:var(--tx2);font-family:var(--mo);margin-top:1px}
+.kp.kpp .kv{color:var(--warn)}.kp.kpa .kv{color:var(--ok)}.kp.kpr .kv{color:var(--err)}.kp.kpd .kv{color:var(--ac)}
+.fb{display:flex;gap:8px;align-items:center;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:9px 13px;flex-wrap:wrap}
+.fb input,.fb select{flex:1;min-width:120px}
+.ctw{background:var(--sf);border:1px solid var(--bd);border-radius:14px;overflow:hidden;overflow-x:auto}
+table.ct{width:100%;border-collapse:collapse}
+table.ct thead{background:var(--sf2)}
+table.ct th{font-family:var(--mo);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);padding:9px 11px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
+table.ct td{padding:9px 11px;font-size:11px;border-bottom:1px solid var(--bd);vertical-align:middle}
+table.ct tr:last-child td{border-bottom:none}
+table.ct tbody tr{transition:background .12s}
+table.ct tr:hover td{background:var(--sf2);cursor:pointer}
+table.ct td.mn{font-family:var(--mo);font-size:11px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--mo);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.badge::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor;flex-shrink:0}
+.b-p{background:rgba(234,154,12,.13);color:var(--warn)}
+.b-a{background:rgba(59,130,246,.13);color:var(--ac)}
+.b-ok{background:rgba(22,163,74,.13);color:var(--ok)}
+.b-cr{background:rgba(22,163,74,.2);color:#15803d}
+.b-r{background:rgba(225,29,72,.13);color:var(--err)}
+.b-pd{background:rgba(139,92,246,.13);color:#7c3aed}
+.b-ar{background:rgba(100,116,139,.15);color:var(--tx3)}
+.chip{display:inline-block;padding:2px 7px;border-radius:6px;font-size:10px;font-family:var(--mo);font-weight:600;background:rgba(59,130,246,.1);color:var(--ac);border:1px solid rgba(59,130,246,.2)}
+.chip.psa{background:rgba(59,130,246,.1);color:#2563eb;border-color:rgba(59,130,246,.2)}
+.chip.mahindra{background:rgba(234,154,12,.12);color:#b45309;border-color:rgba(234,154,12,.25)}
+.chip.chinese{background:rgba(225,29,72,.1);color:#be123c;border-color:rgba(225,29,72,.2)}
+.chip.generic{background:rgba(100,116,139,.12);color:#475569;border-color:rgba(100,116,139,.2)}
+.abtn{background:var(--sf3);border:1px solid var(--bd2);border-radius:5px;padding:3px 8px;font-size:10px;color:var(--tx);cursor:pointer;font-family:var(--mo)}
+.abtn:hover{background:var(--bd2)}
+.mol{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(2px);z-index:200;display:none;align-items:center;justify-content:center;padding:14px}
+.mol.on{display:flex}
+.mod{background:var(--sf);border:1px solid var(--bd2);border-radius:18px;width:100%;max-width:920px;max-height:92vh;overflow-y:auto}
+.mhd{padding:18px 22px 14px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--sf);z-index:10}
+.mhd h2{font-size:15px;font-weight:800}
+.mhd p{font-family:var(--mo);font-size:11px;color:var(--tx2);margin-top:2px}
+.mcl{background:none;border:1px solid var(--bd2);border-radius:5px;padding:3px 8px;cursor:pointer;color:var(--tx2);font-size:14px}.mcl:hover{color:var(--tx)}
+.mb{padding:18px 22px;display:flex;flex-direction:column;gap:18px}
+.ds h3{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--tx3);font-family:var(--mo);margin-bottom:9px}
+.dg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dl{font-size:10px;color:var(--tx3);font-family:var(--mo);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1px}
+.dv{font-size:12px;font-family:var(--mo);color:var(--tx)}
+.amt{font-size:16px;font-weight:800;color:var(--ok);font-family:var(--mo)}
+.tl{display:flex;flex-direction:column}
+.tli{display:flex;gap:11px}
+.tll{display:flex;flex-direction:column;align-items:center}
+.tld{width:8px;height:8px;border-radius:50%;background:var(--bd2);flex-shrink:0;margin-top:2px}
+.tld.on{background:var(--ac);box-shadow:0 0 6px var(--ac)}
+.tlc_{width:2px;flex:1;background:var(--bd);min-height:14px}
+.tlct{padding-bottom:14px}
+.tls{font-size:12px;font-weight:700}
+.tlm{font-size:10px;color:var(--tx2);font-family:var(--mo);margin-top:1px}
+.tln{font-size:11px;color:var(--tx2);margin-top:2px;font-style:italic}
+.att-list{display:flex;flex-direction:column;gap:6px}
+.att-item{display:flex;align-items:center;gap:9px;background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:7px 10px}
+.att-ico{font-size:16px;flex-shrink:0}
+.att-info{flex:1;min-width:0}
+.att-name{font-size:11px;font-family:var(--mo);color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.att-meta{font-size:10px;color:var(--tx3);font-family:var(--mo);margin-top:1px}
+.att-tag{font-size:9px;color:var(--tx3);font-family:var(--mo);background:var(--sf3);padding:1px 5px;border-radius:3px;border:1px solid var(--bd);white-space:nowrap;flex-shrink:0}
+.ncpan{background:var(--sf2);border:1px solid var(--bd);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:11px}
+.ncpan h3{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--tx2);font-family:var(--mo)}
+.orcl{display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto}
+.ori{display:flex;align-items:center;gap:8px;padding:6px 9px;background:var(--sf);border:1px solid var(--bd);border-radius:6px;cursor:pointer;transition:all .12s}
+.ori:hover{border-color:var(--bd2)}
+.ori.sel{border-color:var(--ok);background:rgba(22,163,74,.05)}
+.ori input[type=checkbox]{accent-color:var(--ok);width:13px;height:13px;flex-shrink:0}
+.ori-id{font-size:11px;font-weight:700;font-family:var(--mo);color:var(--ac)}
+.ori-mt{font-size:10px;color:var(--tx2);font-family:var(--mo)}
+.ori-vl{font-size:11px;font-family:var(--mo);color:var(--ok);white-space:nowraw;margin-left:auto}
+.arow{display:flex;gap:6px;flex-wrap:wrap}
+.coi{display:flex;align-items:center;gap:8px;padding:6px 9px;background:var(--sf);border:1px solid var(--bd);border-radius:6px;cursor:pointer}
+.coi:hover{border-color:var(--bd2)}
+.coi.sel{border-color:#8b5cf6;background:rgba(139,92,246,.06)}
+.coi input[type=checkbox]{accent-color:#8b5cf6;width:13px;height:13px;flex-shrink:0}
+.info-box{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.18);border-radius:9px;padding:9px 12px;font-size:11px;color:var(--ac);font-family:var(--mo);line-height:1.5}
+.warn-box{background:rgba(234,154,12,.08);border:1px solid rgba(234,154,12,.25);border-radius:9px;padding:9px 12px;font-size:11px;color:var(--warn);font-family:var(--mo);display:flex;gap:8px;align-items:flex-start}
+.brand-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.toast{position:fixed;bottom:18px;right:18px;background:var(--sf);border:1px solid var(--bd2);border-radius:11px;padding:11px 16px;font-size:11px;font-family:var(--mo);z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;max-width:300px;box-shadow:0 8px 24px rgba(15,23,42,.12)}
+.toast.on{transform:translateY(0);opacity:1}
+.toast.s{border-left:3px solid var(--ok)}.toast.e{border-left:3px solid var(--err)}.toast.w{border-left:3px solid var(--warn)}
+.b-rt{background:rgba(245,158,11,.12);color:#d97706;border:1px solid rgba(245,158,11,.3)}
+.adm-sec{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px}
+.adm-sec h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--tx2);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--bd)}
+.langswitch{display:flex;gap:4px;align-items:center;margin-right:8px}
+.langbtn{background:none;border:1px solid var(--bd);color:var(--tx3);border-radius:6px;padding:3px 8px;font-size:10px;font-family:var(--mo);cursor:pointer;transition:all .15s}
+.langbtn.on,.langbtn:hover{background:var(--ac);color:#fff;border-color:var(--ac)}
+.new-usr-form{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;align-items:end;margin-top:12px}
+
+@media (max-width: 768px) {
+  .topbar { flex-wrap: wrap; padding: 8px 10px; gap: 6px; }
+  .logo { font-size: 14px; }
+  .ntabs { order: 3; width: 100%; overflow-x: auto; }
+  .langswitch { margin-left: auto; }
+  .view { padding: 10px; }
+  .dh { flex-direction: column; gap: 8px; }
+  .dh h1 { font-size: 18px; }
+  .kg { grid-template-columns: 1fr !important; }
+  .kg2 { grid-template-columns: 1fr !important; }
+  .ctw { overflow-x: auto; }
+  table.ct { font-size: 11px; min-width: 500px; }
+  .modal-box { width: 98vw !important; max-width: 98vw !important; margin: 4px !important; max-height: 96vh; }
+  .new-usr-form { flex-direction: column !important; }
+  .new-usr-form .fd { min-width: unset !important; width: 100% !important; }
+  .fstep { padding: 10px; }
+  .pbar { overflow-x: auto; }
+  .kp { min-width: 80px; padding: 10px; }
+  .kv { font-size: 22px !important; }
+  #bulk-bar { bottom: 10px; width: 90vw; justify-content: center; flex-wrap: wrap; }
+  .arow { flex-wrap: wrap; }
+  .arow button { flex: 1; min-width: 100px; }
+}
+
+</style>
+</head>
+<body>
+<div id="login">
+  <div class="login-card">
+    <div class="login-logo"><div class="ldot"></div>WARRANTYCLAIM PRO</div>
+    <div class="login-sub">Portal de Garantias · Rede SCAA</div>
+    <div class="login-tabs">
+      <div class="login-tab on" id="lt-dealer" onclick="loginTab('dealer')">Dealer</div>
+      <div class="login-tab" id="lt-imp" onclick="loginTab('importer')">Importador</div>
+    </div>
+    <div id="login-dealer">
+      <div class="login-field"><label>Concessionário</label><select id="li-dealer"></select></div>
+      <div class="login-field"><label>Utilizador</label><input id="li-user" type="text" placeholder="username"></div>
+      <div class="login-field"><label>Password</label><input id="li-pass" type="password" placeholder="••••••••"></div>
+      <button class="login-btn" onclick="doLogin('dealer')">Entrar</button>
+      <div class="login-hint">🔑 <strong>User de teste:</strong> qualquer dealer · user <strong>teste</strong> · pass <strong>teste</strong></div>
+    </div>
+    <div id="login-imp" style="display:none">
+      <div class="login-field"><label>Utilizador (Importador)</label><input id="li-iuser" type="text" placeholder="admin"></div>
+      <div class="login-field"><label>Password</label><input id="li-ipass" type="password" placeholder="••••••••"></div>
+      <button class="login-btn" onclick="doLogin('importer')">Entrar como Importador</button>
+      <div class="login-hint">🔑 <strong>Importador (back-office):</strong> user <strong>admin</strong> · pass <strong>admin</strong></div>
+    </div>
+    <div class="login-err" id="login-err">Credenciais inválidas. Use teste/teste (dealer) ou admin/admin (importador).</div>
+  </div>
+</div>
+<div id="app">
+<div class="topbar">
+  <div class="logo"><div class="ldot"></div>WARRANTYCLAIM <span style="color:var(--tx3);font-weight:400">PRO</span></div>
+  <div class="ntabs" id="navtabs"></div>
+  <div class="bell-wrap" id="bell-wrap" style="position:relative;margin-right:4px"><button class="bell-btn" id="bell-btn" onclick="toggleNotifPanel()" style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px 8px;color:var(--tx2);position:relative">🔔<span id="bell-count" style="display:none;position:absolute;top:0;right:0;background:var(--err);color:#fff;border-radius:50%;font-size:9px;font-family:var(--mo);min-width:16px;height:16px;display:none;align-items:center;justify-content:center;font-weight:700">0</span></button><div id="notif-panel" style="display:none;position:absolute;top:36px;right:0;width:300px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:200;max-height:320px;overflow-y:auto"></div></div><div class="langswitch" id="langswitch"><button class="langbtn on" data-l="pt" onclick="setLang('pt')">PT</button><button class="langbtn" data-l="en" onclick="setLang('en')">EN</button><button class="langbtn" data-l="fr" onclick="setLang('fr')">FR</button></div><div class="uchip"><div class="uav" id="uav">··</div><span id="ulabel">—</span><button class="logout-btn" onclick="logout()">Sair</button></div>
+</div>
+<div id="vs" class="view on">
+  <div class="fhdr"><h1>Submissão de Garantia</h1><p id="vs-sub">—</p></div>
+  <div class="pbar">
+    <div class="pst on" id="pt1">01 — Veículo</div><div class="pst" id="pt2">02 — Reparação</div><div class="pst" id="pt3">03 — Códigos</div><div class="pst" id="pt4">04 — Peças / MO / Sublet</div><div class="pst" id="pt5">05 — Fotos</div><div class="pst" id="pt6">06 — Revisão</div>
+  </div>
+  <div class="fstep on" id="s1"><div class="si">
+    <div class="fc"><h2>Veículo <span class="stag">VEHICLE INFORMATION</span></h2>
+      <div class="fg">
+        <div class="fd"><label>Concessionário</label><input id="f-dl" type="text" readonly style="background:var(--sf2)"></div>
+        <div class="fd"><label>Marca <span class="rq">*</span></label><select id="f-br" onchange="onBrand(this.value)"><option value="">Selecionar...</option></select></div>
+        <div class="fd"><label>VIN <span class="rq">*</span></label><input id="f-vin" type="text" placeholder="VIN (17)" maxlength="17" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="fd"><label>Model</label><input id="f-model" type="text" placeholder="Modelo"></div>
+        <div class="fd"><label>Sales Date <span class="opt">(Warranty Start)</span> <span class="rq">*</span></label><input id="f-sales" type="date"></div>
+        <div class="fd"><label>Mileage at Sales Date</label><input id="f-salkm" type="number" placeholder="km"></div>
+        <div class="fd"><label>Vehicle Usage <span class="opt">(opc.)</span></label><select id="f-usage"><option value="">—</option><option>Operation</option><option>Non-operation</option></select></div>
+        <div class="fd"><label>Vehicle Attributes <span class="opt">(opc.)</span></label><select id="f-attr"><option value="">—</option><option>Family car</option><option>Commercial vehicle</option></select></div>
+        <div class="fd"><label>Customer Type <span class="opt">(opc.)</span></label><select id="f-ctype"><option value="">—</option><option>Individual customers</option><option>Corporate customers</option><option>Unknown</option></select></div>
+        <div class="fd"><label>Customer Name <span class="opt">(opc.)</span></label><input id="f-cname" type="text" placeholder="Nome do cliente"></div>
+      </div>
+    </div>
+    <div class="fa"><button class="btn bp" onclick="GS(2)">Seguinte →</button></div>
+  </div></div>
+  <div class="fstep" id="s2"><div class="si">
+    <div class="fc"><h2>Reparação <span class="stag">REPAIR INFORMATION</span></h2>
+      <div class="fg">
+        <div class="fd"><label>Repair Order Nº <span class="rq">*</span></label><input id="f-or" type="text" placeholder="OR-XXXXX"></div>
+        <div class="fd"><label>Claim Nº</label><input id="f-cln" type="text" placeholder="Nº da claim"></div>
+        <div class="fd"><label>RO Open Date <span class="rq">*</span></label><input id="f-roo" type="date"></div>
+        <div class="fd"><label>RO Conclusion Date <span class="rq">*</span></label><input id="f-roc" type="date"></div>
+        <div class="fd"><label>Mileage (km) <span class="rq">*</span></label><input id="f-km" type="number" placeholder="km"></div>
+        <div class="fd"><label>Claim Type <span class="rq">*</span></label><select id="f-ctype2"><option value="">Selecione marca primeiro</option></select></div>
+        <div class="fd s2"><label>Customer Complaint <span class="rq">*</span></label><textarea id="f-cq" rows="2" placeholder="Queixa do cliente"></textarea></div>
+        <div class="fd s2"><label>Technician Diagnosis <span class="rq">*</span></label><textarea id="f-dg" rows="3" placeholder="Diagnóstico técnico"></textarea></div>
+        <div class="fd s2"><label>Solution <span class="rq">*</span></label><textarea id="f-sol" rows="2" placeholder="Solução aplicada"></textarea></div>
+      </div>
+    </div>
+    <div class="fa"><button class="btn bg" onclick="GS(1)">← Anterior</button><button class="btn bp" onclick="GS(3)">Seguinte →</button></div>
+  </div></div>
+  <div class="fstep" id="s3"><div class="si">
+    <div class="fc"><h2>Códigos da Claim <span class="stag">CLAIM CODES</span></h2>
+      <div id="cb-psa" class="cb"><h3>⚡ PSA — DID, Allocation, Fault / Cause / Labour Codes</h3>
+        <div class="info-box" style="margin-bottom:12px">Encontre os códigos no <strong>Service Box</strong>. Realce a peça causal nas peças.</div>
+        <div class="fg" style="margin-bottom:12px"><div class="fd"><label>DID Code</label><input id="f-did" type="text" placeholder="DID Code"></div><div class="fd"><label>Allocation Code</label><input id="f-alloc" type="text" placeholder="Allocation Code"></div></div>
+        <div class="fg3"><div class="fd"><label>Fault Codes</label><div id="fc-list"></div><button class="btn bg bsm" style="margin-top:4px" onclick="addCode('fc')">+ Fault</button></div><div class="fd"><label>Cause Codes</label><div id="cc-list"></div><button class="btn bg bsm" style="margin-top:4px" onclick="addCode('cc')">+ Cause</button></div><div class="fd"><label>Labour Codes</label><div id="lc-list"></div><button class="btn bg bsm" style="margin-top:4px" onclick="addCode('lc')">+ Labour</button></div></div>
+      </div>
+      <div id="cb-mah" class="cb"><h3>⚡ Mahindra — TAR No.</h3><div class="fg"><div class="fd"><label>TAR No. <span class="opt">(Technical Support Request — Mtis)</span></label><input id="f-tar" type="text" placeholder="Ticket Number no Mtis"></div></div></div>
+      <div id="cb-chi" class="cb"><h3>⚡ Marca Chinesa — Ticket de Suporte Técnico</h3><div class="fg"><div class="fd"><label>Nº Ticket Suporte Técnico <span class="opt">(portal da marca)</span></label><input id="f-ctk" type="text" placeholder="Technical Support Ticket Nº"></div></div></div>
+      <div id="cb-gen" class="cb" style="display:none;background:none;border:none;border-left:none;padding:0"><div class="info-box">ℹ Esta marca não exige códigos específicos. Avance para Peças / MO / Sublet e Fotos.</div></div>
+      <div id="cb-none" class="cb" style="display:block;background:none;border:none;border-left:none;padding:0"><div class="warn-box">⚠ Selecione a marca no passo 01 para ver os campos de códigos.</div></div>
+    </div>
+    <div class="fa"><button class="btn bg" onclick="GS(2)">← Anterior</button><button class="btn bp" onclick="GS(4)">Seguinte →</button></div>
+  </div></div>
+  <div class="fstep" id="s4"><div class="si">
+    <div class="fc"><h2>Peças <span class="stag">PARTS</span></h2>
+      <div class="info-box" style="margin-bottom:12px">Realce a <strong>peça causal</strong>. Part Codes no EPC.</div>
+      <table class="tbl"><thead><tr><th style="width:30px">Causal</th><th>Part Code</th><th>Descrição</th><th style="width:70px">Qtd</th><th style="width:80px">Custo Unit. (€)</th><th style="width:75px">Total (€)</th><th style="width:40px"></th></tr></thead>
+      <tbody id="pb"><tr class="pr"><td style="text-align:center"><input type="radio" name="causal" style="width:auto;accent-color:var(--err)"></td><td><input type="text" placeholder="Part Code"></td><td><input type="text" placeholder="Descrição"></td><td><input type="number" value="1" min="1" oninput="cgParts()" style="width:60px"></td><td><input type="number" value="0" min="0" step="0.01" placeholder="0.00" oninput="cgParts()" style="width:72px"></td><td class="mn pt-t" style="font-size:11px;font-family:var(--mo);text-align:right">0.00 €</td><td><button class="btn bg bsm" onclick="rmr(this)">✕</button></td></tr></tbody></table>
+      <button class="btn bg bsm" style="margin-top:8px" onclick="adr()">+ Peça</button>
+    </div>
+    <div class="fc"><h2>Mão-de-Obra <span class="stag">MÚLTIPLAS LINHAS</span></h2>
+      <div class="info-box" style="margin-bottom:12px">Indique <strong>apenas o número de horas</strong>. O valor/hora é definido pelo importador por marca/dealer e calculado no back-office. Sem IVA.</div>
+      <table class="tbl"><thead><tr><th>Descrição da Operação</th><th style="width:85px">Horas</th><th style="width:40px"></th></tr></thead>
+      <tbody id="lb"><tr class="lr"><td><input type="text" placeholder="Ex: Substituição de peça causal"></td><td><input type="number" placeholder="0.0" step="0.1" min="0" oninput="cgLabour()" style="width:78px"></td><td><button class="btn bg bsm" onclick="rmlr(this)">✕</button></td></tr></tbody></table>
+      <button class="btn bg bsm" style="margin-top:6px" onclick="addLr()">+ Linha MO</button>
+      <input id="f-lh" type="number" readonly style="display:none">
+    </div>
+    <div class="fc"><h2>Sublet <span class="stag">VALUE IN <span class="curr-sym">USD</span></span></h2>
+      <div class="info-box" style="margin-bottom:12px">Óleos, reboque, viatura de cortesia, outros. <strong>Reboque/cortesia/outros exigem aprovação prévia.</strong></div>
+      <table class="tbl"><thead><tr><th>Descrição</th><th style="width:140px">Value (<span class="curr-sym">USD</span>)</th><th style="width:40px"></th></tr></thead>
+      <tbody id="sb"><tr class="sr"><td><input type="text" placeholder="Descrição do sublet"></td><td><input type="number" placeholder="0.00" step="0.01" oninput="cgSub()"></td><td><button class="btn bg bsm" onclick="rmsr(this)">✕</button></td></tr></tbody></table>
+      <button class="btn bg bsm" style="margin-top:8px" onclick="adsr()">+ Sublet</button>
+      <div class="dvd"></div>
+      <div class="fg3"><div class="fd"><label>Total Peças (qtd)</label><input id="f-ptot" type="number" readonly style="background:var(--sf2)"></div><div class="fd"><label>Total Horas MO</label><input id="f-lhtot" type="number" readonly style="background:var(--sf2);color:var(--ac)"></div><div class="fd"><label>Total Sublet (<span class="curr-sym">USD</span>)</label><input id="f-subtot" type="number" readonly style="background:var(--sf2);color:var(--ok)"></div></div>
+    </div>
+    <div class="fa"><button class="btn bg" onclick="GS(3)">← Anterior</button><button class="btn bp" onclick="GS(5)">Seguinte →</button></div>
+  </div></div>
+  <div class="fstep" id="s5"><div class="si">
+    <div class="fc"><h2>Fotos Requeridas <span class="stag">PHOTOS</span></h2>
+      <div class="fg">
+        <div class="fd"><label>Peça Antiga Substituída <span class="rq">*</span></label><div class="upzone" ondragover="dov(event,this)" ondragleave="dlv(this)" ondrop="drp(event,'oldpart')"><input type="file" accept="image/*" onchange="onFile(event,'oldpart')"><div class="upzone-ico">📷</div><div class="upzone-lbl">Old Part Replaced</div></div><div class="file-list" id="fl-oldpart"></div></div>
+        <div class="fd"><label>Peça Nova Substituída <span class="rq">*</span></label><div class="upzone" ondragover="dov(event,this)" ondragleave="dlv(this)" ondrop="drp(event,'newpart')"><input type="file" accept="image/*" onchange="onFile(event,'newpart')"><div class="upzone-ico">📷</div><div class="upzone-lbl">New Part Replaced</div></div><div class="file-list" id="fl-newpart"></div></div>
+        <div class="fd"><label>Odómetro <span class="rq">*</span></label><div class="upzone" ondragover="dov(event,this)" ondragleave="dlv(this)" ondrop="drp(event,'odo')"><input type="file" accept="image/*" onchange="onFile(event,'odo')"><div class="upzone-ico">📷</div><div class="upzone-lbl">Odometer</div></div><div class="file-list" id="fl-odo"></div></div>
+        <div class="fd"><label>VIN <span class="rq">*</span></label><div class="upzone" ondragover="dov(event,this)" ondragleave="dlv(this)" ondrop="drp(event,'vinphoto')"><input type="file" accept="image/*" onchange="onFile(event,'vinphoto')"><div class="upzone-ico">📷</div><div class="upzone-lbl">VIN</div></div><div class="file-list" id="fl-vinphoto"></div></div>
+        <div class="fd"><label>Frente do Carro <span class="rq">*</span></label><div class="upzone" ondragover="dov(event,this)" ondragleave="dlv(this)" ondrop="drp(event,'front')"><input type="file" accept="image/*" onchange="onFile(event,'front')"><div class="upzone-ico">📷</div><div class="upzone-lbl">Front of Car</div></div><div class="file-list" id="fl-front"></div></div>
+        <div class="fd" id="mah-photo" style="display:none"><label>Peça Nova Instalada <span class="opt">(Mahindra)</span></label><div class="upzone" ondragover="dov(event,this)" ondragleave="dlv(this)" ondrop="drp(event,'installed')"><input type="file" accept="image/*" onchange="onFile(event,'installed')"><div class="upzone-ico">📷</div><div class="upzone-lbl">New Part Installed</div></div><div class="file-list" id="fl-installed"></div></div>
+      </div>
+      <div class="dvd"></div>
+      <div class="fg"><div class="fd s2"><label>OR / Documentos adicionais <span class="opt">(PDF)</span></label><div class="upzone" ondragover="dov(event,this)" ondragleave="dlv(this)" ondrop="drp(event,'docs')"><input type="file" accept=".pdf" multiple onchange="onFile(event,'docs')"><div class="upzone-ico">📄</div><div class="upzone-lbl">PDFs (OR, relatórios...)</div></div><div class="file-list" id="fl-docs"></div></div></div>
+    </div>
+    <div class="fa"><button class="btn bg" onclick="GS(4)">← Anterior</button><button class="btn bp" onclick="GS(6)">Rever →</button></div>
+  </div></div>
+  <div class="fstep" id="s6"><div class="si">
+    <div class="fc"><h2>Revisão Final <span class="stag">STEP 06</span></h2><div id="rev" style="font-family:var(--mo);font-size:11px;color:var(--tx2);line-height:1.9"></div></div>
+    <div class="fa"><button class="btn bg" onclick="GS(5)">← Rever</button><button class="btn bs" onclick="submitClaim()">✓ Submeter Garantia</button></div>
+  </div></div>
+  <div class="ssc" id="ss"><div class="ssi">✓</div><h2 style="font-size:18px;font-weight:800">Garantia Submetida!</h2><p style="color:var(--tx2);font-family:var(--mo)">ID da Claim:</p><div class="cid" id="cidbox">—</div><div id="ss-sum" style="font-size:11px;color:var(--tx2);font-family:var(--mo)"></div><button class="btn bg" onclick="newClaim()" style="margin-top:10px">+ Nova Submissão</button></div>
+</div>
+<div id="vd" class="view"><div id="bulk-bar" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:10px 16px;gap:8px;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:150"><span id="bulk-cnt" style="font-size:11px;font-family:var(--mo);color:var(--tx2);margin-right:4px">0 selecionadas</span><button class="btn bsm" onclick="bulkAction('approved')">✓ Aprovar</button><button class="btn bsm be" onclick="bulkAction('rejected')">✕ Rejeitar</button><button class="btn bsm bg" onclick="bulkAction('archived')">📦 Arquivar</button><button class="btn bsm" onclick="clearBulk()" style="background:var(--sf2)">✕ Limpar</button></div>
+  <div class="dh"><div><h1>Back-Office — Importador</h1><p id="dsub">—</p></div><button class="btn bg bsm" onclick="rdb()">↻</button></div>
+  <div class="kg" id="dkpi"></div>
+  <div class="fb"><input type="text" id="fsrch" placeholder="VIN, OR, ID..." oninput="filterC()" style="max-width:180px"><select id="fbr" onchange="filterC()"><option value="">Todas as marcas</option></select><select id="fst" onchange="filterC()"><option value="">Todos os estados</option><option value="pending">Pendente</option><option value="analysis">Em Análise</option><option value="approved">Aprovada</option><option value="credited">Creditada NC</option><option value="rejected">Rejeitada</option><option value="paid">Paga</option><option value="archived">Arquivada</option></select><select id="fdl" onchange="filterC()"><option value="">Todos os dealers</option></select><button class="btn bsm bg" onclick="exportCSV()" style="margin-left:auto">↓ Export CSV</button></div>
+  <div class="ctw"><table class="ct"><thead><tr><th style="width:30px"><input type="checkbox" id="chk-all" onclick="toggleBulkAll(this)" style="width:auto"></th><th>Claim ID</th><th>Dealer</th><th>País</th><th>Marca</th><th>VIN</th><th>OR</th><th>Data</th><th>Horas</th><th>Custo MO</th><th>Estado</th><th>NC</th><th></th></tr></thead><tbody id="dtb"></tbody></table></div>
+</div>
+<div id="vnc" class="view">
+  <div class="dh"><div><h1>NC da Marca &amp; Faturas Dealer</h1><p style="color:var(--tx2);font-size:11px;font-family:var(--mo)">NC's multi-OR · faturas dealer · sem IVA</p></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+    <div class="fc"><h2>Nova NC da Marca</h2>
+      <div style="display:flex;flex-direction:column;gap:11px">
+        <div class="fg"><div class="fd"><label>Nº NC <span class="rq">*</span></label><input id="nc-num" type="text" placeholder="NC-XXXX"></div><div class="fd"><label>Valor Total NC</label><input id="nc-val" type="number" readonly style="background:var(--sf2);color:var(--ok)"></div></div>
+        <div class="fd"><label>PDF da NC</label><div class="upzone" ondragover="dov(event,this)" ondragleave="dlv(this)" ondrop="drp(event,'nc')"><input type="file" accept=".pdf" onchange="onFile(event,'nc')"><div class="upzone-ico">📑</div><div class="upzone-lbl">Carregar PDF</div></div><div class="file-list" id="fl-nc"></div></div>
+        <div><label style="display:block;margin-bottom:7px">OR's a creditar <span class="rq">*</span></label><div style="display:flex;gap:7px;margin-bottom:7px"><input type="text" id="nc-s" placeholder="Filtrar OR/dealer/marca..." oninput="renderNCorl()" style="flex:1"></div><div class="orcl" id="nc-orl"></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;font-family:var(--mo);color:var(--tx2)" id="nc-cnt">0 OR's · 0,00</span><button class="btn bs bsm" onclick="createNC()">✓ Criar NC</button></div>
+      </div>
+    </div>
+    <div class="fc"><h2>NC's Registadas</h2><div id="nc-lst"></div></div>
+  </div>
+  <div class="fc"><h2>Fatura do Dealer</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <div style="display:flex;flex-direction:column;gap:11px"><div class="fg"><div class="fd"><label>Dealer <span class="rq">*</span></label><select id="ft-dl" onchange="renderFTorl()"><option value="">Selecionar...</option></select></div><div class="fd"><label>Nº Fatura <span class="rq">*</span></label><input id="ft-num" type="text" placeholder="FT-XXXX"></div><div class="fd"><label>Total FT</label><input id="ft-val" type="number" readonly style="background:var(--sf2);color:#7c3aed"></div></div><div class="fd"><label>PDF da Fatura</label><div class="upzone" ondragover="dov(event,this)" ondragleave="dlv(this)" ondrop="drp(event,'ft2')"><input type="file" accept=".pdf" onchange="onFile(event,'ft2')"><div class="upzone-ico">🧾</div><div class="upzone-lbl">PDF da fatura</div></div><div class="file-list" id="fl-ft2"></div></div></div>
+      <div><label style="display:block;margin-bottom:6px">OR's creditadas disponíveis <span class="rq">*</span></label><div style="font-size:10px;color:var(--tx3);font-family:var(--mo);margin-bottom:7px">Só OR's com NC e não faturadas</div><div class="orcl" id="ft-orl"></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px"><span style="font-size:11px;font-family:var(--mo);color:var(--tx2)" id="ft-cnt">0 OR's · 0,00</span><button class="btn bsm" style="background:rgba(139,92,246,.18);color:#7c3aed;border:1px solid #8b5cf6" onclick="submitFT()">💶 Registar Fatura</button></div></div>
+    </div>
+  </div>
+</div>
+<div id="vrate" class="view">
+  <div class="dh"><div><h1>Taxas de Mão-de-Obra</h1><p style="color:var(--tx2);font-size:11px;font-family:var(--mo)">Valor/hora por marca + dealer · usado para calcular custo MO</p></div></div>
+  <div class="info-box">O dealer só submete horas. Custo MO = horas × taxa aqui definida (marca + dealer). Sem IVA.</div>
+  <div class="ctw"><table class="ct"><thead><tr><th>Marca</th><th>Dealer</th><th>Taxa €/hora</th><th></th></tr></thead><tbody id="rate-tb"></tbody></table></div>
+  <div class="fc" style="max-width:560px"><h2>Adicionar / Atualizar Taxa</h2><div class="fg3"><div class="fd"><label>Marca</label><select id="r-br"></select></div><div class="fd"><label>Dealer</label><select id="r-dl"></select></div><div class="fd"><label>Taxa €/hora</label><input id="r-val" type="number" placeholder="ex: 45.00" step="0.01"></div></div><div style="margin-top:12px"><button class="btn bs bsm" onclick="saveRate()">✓ Guardar Taxa</button></div></div>
+</div>
+<div id="vnet" class="view">
+  <div class="dh"><div><h1>Rede — Dealers &amp; Marcas</h1><p id="net-sub">—</p></div></div>
+  <div class="fb"><input type="text" id="net-s" placeholder="Filtrar dealer/país/marca..." oninput="renderNet()" style="max-width:240px"></div>
+  <div class="ctw"><table class="ct"><thead><tr><th>Concessionário</th><th>País</th><th>Marcas Representadas</th><th>Login</th></tr></thead><tbody id="net-tb"></tbody></table></div>
+</div>
+<div id="vadm" class="view">
+  <div class="dh"><div><h1>Administrador</h1><p>Configurações da plataforma</p></div></div>
+  <div class="adm-sec">
+    <h2>📋 Configuração de Campos por Marca</h2>
+    <p style="font-size:11px;color:var(--tx3);margin-bottom:12px">Define quais os campos pedidos na submissão para cada perfil de marca. As alterações aplicam-se quando o dealer seleciona a marca.</p>
+    <div id="adm-bcfg"></div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn bsm" onclick="renderBrandCfg()">↻ Recarregar</button>
+      <button class="btn bsm bs" onclick="saveBrandCfg()">✓ Guardar Configuração</button>
+    </div>
+  </div>
+  <div class="adm-sec">
+    <h2>👥 Gestão de Utilizadores</h2>
+    <p style="font-size:11px;color:var(--tx3);margin-bottom:12px">Utilizadores criados aqui têm acesso adicional ao de <code>admin / teste</code> padrão.</p>
+    <div id="adm-usrs"></div>
+    <div class="new-usr-form" style="margin-top:12px">
+      <div class="fd"><label>Nome de utilizador</label><input id="new-uname" type="text" placeholder="username"></div>
+      <div class="fd"><label>Password</label><input id="new-upass" type="password" placeholder="••••••••"></div>
+      <div class="fd"><label>Perfil</label><select id="new-urole" onchange="document.getElementById('new-udlwrap').style.display=this.value==='dealer'?'block':'none'"><option value="">Selecionar...</option><option value="importer">Importador</option><option value="dealer">Dealer</option></select></div>
+      <div class="fd" id="new-udlwrap" style="display:none"><label>Dealer</label><select id="new-udealer"><option value="">Selecionar...</option></select></div>
+      <div style="padding-bottom:2px"><button class="btn bs bsm" onclick="createUser()">+ Criar</button></div>
+    </div>
+  </div>
+  <div class="adm-sec">
+    <h2>🛡 Coberturas de Garantia</h2>
+    <p style="font-size:11px;color:var(--tx3);margin-bottom:12px">Define anos e km de cobertura <strong>por marca</strong>. Usado para detetar claims fora de garantia na submissão.</p>
+    <div class="ctw"><table class="ct"><thead><tr><th>Marca</th><th>Anos</th><th>KM</th><th style="width:40px"></th></tr></thead><tbody id="war-tb"></tbody></table></div>
+    <div class="fc" style="max-width:500px;margin-top:14px"><h2>Adicionar / Atualizar</h2>
+    <div class="fg3"><div class="fd"><label>Marca</label><select id="war-br"></select></div><div class="fd"><label>Anos garantia</label><input id="war-yr" type="number" min="0" step="0.5" placeholder="ex: 2"></div><div class="fd"><label>KM limite</label><input id="war-km" type="number" min="0" step="5000" placeholder="ex: 100000"></div></div>
+    <div style="margin-top:12px"><button class="btn bs bsm" onclick="saveWarrantyEntry()">✓ Guardar</button></div></div>
+  </div>
+  <div class="adm-sec">
+    <h2>📎 Documentos Obrigatórios</h2>
+    <p style="font-size:11px;color:var(--tx3);margin-bottom:12px">Define quais os slots de documentos obrigatórios por perfil de marca na submissão.</p>
+    <div id="adm-docreq"></div>
+    <button class="btn bsm bs" style="margin-top:10px" onclick="saveDocReq()">💾 Guardar Requisitos</button>
+  </div>
+</div>
+<div id="vstat" class="view">
+  <div class="dh"><div><h1 id="stat-title">📊 Estatísticas & KPIs</h1><p>Dados em tempo real do localStorage</p></div><button class="btn bg bsm" onclick="renderStats()">↻</button></div>
+  <div id="stat-body" style="padding-bottom:20px"></div>
+</div>
+<div id="vdl" class="view">
+  <div class="dh"><div><h1>As Minhas Claims</h1><p id="dl-sub">—</p></div></div>
+  <div class="kg kg4" id="dkpi2"></div>
+  <div class="ctw"><table class="ct"><thead><tr><th>Claim ID</th><th>Marca</th><th>VIN</th><th>OR</th><th>Data</th><th>Horas</th><th>Estado</th><th>NC</th><th>FT</th><th></th></tr></thead><tbody id="dtb2"></tbody></table></div>
+</div>
+</div>
+<div class="mol" id="mol" onclick="if(event.target===this)cm()"><div class="mod"><div class="mhd"><div><h2 id="mtit">—</h2><p id="msub">—</p></div><button class="mcl" onclick="cm()">✕</button></div><div class="mb" id="mbody"></div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+let LANG=localStorage.getItem('wcpf_lang')||'pt';
+function setLang(l){LANG=l;localStorage.setItem('wcpf_lang',l);document.querySelectorAll('.langbtn').forEach(b=>b.classList.toggle('on',b.dataset.l===l));reRender();}
+function reRender(){const v=document.querySelector('.view.on');if(!v)return;const id=v.id;if(id==='vd'){rdb();}else if(id==='vdl'){rdp();}else if(id==='vnc'){renderNCorl();renderNCl();renderFTorl();}else if(id==='vstat')renderStats();buildNav();}
+const I18N={
+pt:{nav_bo:'Back-Office',nav_ncft:'NC / FT',nav_rates:'Taxas MO',nav_net:'Rede',nav_admin:'⚙ Admin',nav_stats:'📊 Estatísticas',nav_submit:'Nova Submissão',nav_myclaims:'As Minhas Claims',
+st_pending:'Pendente',st_analysis:'Em Análise',st_approved:'Aprovada',st_credited:'Creditada NC',st_rejected:'Rejeitada',st_paid:'Paga',st_archived:'Arquivada',st_returned:'Retornado',
+btn_analysis:'📋 Em Análise',btn_approve:'✓ Aprovar',btn_reject:'✕ Rejeitar',btn_credit:'🏷 Creditada',btn_paid:'💶 Paga',btn_archive:'📦 Arquivar',btn_return:'↩ Retornar',btn_reply:'↩ Submeter Resposta',
+lbl_ncbrand:'NC Marca',lbl_ftdealer:'FT Dealer',lbl_note:'Nota',lbl_retmsg:'Mensagem de Retorno (para o dealer)',
+lbl_moaceite:'Mão-de-Obra aceite (€)',lbl_mataceite:'Materiais aceites (€)',lbl_subaceite:'Sublet aceite (€)',
+sec_vehicle:'Veículo',sec_repair:'Reparação',sec_parts:'Peças',sec_labour:'Mão-de-Obra & Sublet',sec_attachments:'Anexos',sec_status:'Estado & Referências',sec_timeline:'Timeline',
+sec_validation:'✅ Validação para Crédito — valores aceites',sec_importer:'⚙ Ações Importador',sec_returned_imp:'↩ Última Resposta do Dealer',sec_returned_dlr:'Mensagem do Importador',
+kpi_total:'Total',kpi_pending:'Pendentes',kpi_approved:'Aprovadas/NC',kpi_rejected:'Rejeitadas',kpi_paid:'Pagas',
+stat_title:'Estatísticas & KPIs',stat_avgdays:'Dias Médios (fecho)',stat_approval:'Taxa Aprovação',stat_credited_total:'Total Creditado',stat_invoiced_total:'Total Faturado',
+stat_aging:'Aging — claims abertas',stat_by_brand:'Por Marca',stat_by_dealer:'Performance Dealers (Top 10)',stat_trend:'Tendência Mensal (submissões)',stat_status:'Estado das Claims',
+aging_lt15:'< 15 dias',aging_15_30:'15–30 dias',aging_30_60:'30–60 dias',aging_gt60:'> 60 dias',
+col_brand:'Marca',col_total:'Total',col_approval:'Aprovação',col_credited_e:'Creditado €',col_dealer:'Dealer',col_country:'País',col_rejected:'Rejeit.',col_score:'Score',col_period:'Período',col_claims:'Claims',col_pct:'%'},
+en:{nav_bo:'Back-Office',nav_ncft:'NC / FT',nav_rates:'Labour Rates',nav_net:'Network',nav_admin:'⚙ Admin',nav_stats:'📊 Statistics',nav_submit:'New Submission',nav_myclaims:'My Claims',
+st_pending:'Pending',st_analysis:'Under Review',st_approved:'Approved',st_credited:'Credited NC',st_rejected:'Rejected',st_paid:'Paid',st_archived:'Archived',st_returned:'Returned',
+btn_analysis:'📋 Under Review',btn_approve:'✓ Approve',btn_reject:'✕ Reject',btn_credit:'🏷 Credited',btn_paid:'💶 Paid',btn_archive:'📦 Archive',btn_return:'↩ Return',btn_reply:'↩ Submit Reply',
+lbl_ncbrand:'Brand NC',lbl_ftdealer:'Dealer Invoice',lbl_note:'Note',lbl_retmsg:'Return Message (to dealer)',
+lbl_moaceite:'Accepted Labour (€)',lbl_mataceite:'Accepted Materials (€)',lbl_subaceite:'Accepted Sublet (€)',
+sec_vehicle:'Vehicle',sec_repair:'Repair',sec_parts:'Parts',sec_labour:'Labour & Sublet',sec_attachments:'Attachments',sec_status:'Status & References',sec_timeline:'Timeline',
+sec_validation:'✅ Credit Validation — accepted values',sec_importer:'⚙ Importer Actions',sec_returned_imp:'↩ Latest Dealer Reply',sec_returned_dlr:'Importer Message',
+kpi_total:'Total',kpi_pending:'Pending',kpi_approved:'Approved/NC',kpi_rejected:'Rejected',kpi_paid:'Paid',
+stat_title:'Statistics & KPIs',stat_avgdays:'Avg Days (close)',stat_approval:'Approval Rate',stat_credited_total:'Total Credited',stat_invoiced_total:'Total Invoiced',
+stat_aging:'Aging — open claims',stat_by_brand:'By Brand',stat_by_dealer:'Dealer Performance (Top 10)',stat_trend:'Monthly Trend (submissions)',stat_status:'Claim Status',
+aging_lt15:'< 15 days',aging_15_30:'15–30 days',aging_30_60:'30–60 days',aging_gt60:'> 60 days',
+col_brand:'Brand',col_total:'Total',col_approval:'Approval',col_credited_e:'Credited €',col_dealer:'Dealer',col_country:'Country',col_rejected:'Rej.',col_score:'Score',col_period:'Period',col_claims:'Claims',col_pct:'%'},
+fr:{nav_bo:'Back-Office',nav_ncft:'NC / FT',nav_rates:'Taux MO',nav_net:'Réseau',nav_admin:'⚙ Admin',nav_stats:'📊 Statistiques',nav_submit:'Nouvelle Soumission',nav_myclaims:'Mes Claims',
+st_pending:'En attente',st_analysis:'En analyse',st_approved:'Approuvée',st_credited:'Créditée NC',st_rejected:'Rejetée',st_paid:'Payée',st_archived:'Archivée',st_returned:'Retournée',
+btn_analysis:'📋 En analyse',btn_approve:'✓ Approuver',btn_reject:'✕ Rejeter',btn_credit:'🏷 Créditée',btn_paid:'💶 Payée',btn_archive:'📦 Archiver',btn_return:'↩ Retourner',btn_reply:'↩ Soumettre la réponse',
+lbl_ncbrand:'NC Marque',lbl_ftdealer:'Facture Dealer',lbl_note:'Note',lbl_retmsg:'Message de retour (au dealer)',
+lbl_moaceite:'MO acceptée (€)',lbl_mataceite:'Matériaux acceptés (€)',lbl_subaceite:'Sous-traitance acceptée (€)',
+sec_vehicle:'Véhicule',sec_repair:'Réparation',sec_parts:'Pièces',sec_labour:'Main-d\'Œuvre & Sous-traitance',sec_attachments:'Pièces jointes',sec_status:'Statut & Références',sec_timeline:'Historique',
+sec_validation:'✅ Validation Crédit — valeurs acceptées',sec_importer:'⚙ Actions Importateur',sec_returned_imp:'↩ Dernière réponse du dealer',sec_returned_dlr:'Message de l\'importateur',
+kpi_total:'Total',kpi_pending:'En attente',kpi_approved:'Approuvées/NC',kpi_rejected:'Rejetées',kpi_paid:'Payées',
+stat_title:'Statistiques & KPIs',stat_avgdays:'Jours moyens (clôture)',stat_approval:'Taux d\'approbation',stat_credited_total:'Total Crédité',stat_invoiced_total:'Total Facturé',
+stat_aging:'Vieillissement — claims ouvertes',stat_by_brand:'Par marque',stat_by_dealer:'Performance Dealers (Top 10)',stat_trend:'Tendance mensuelle (soumissions)',stat_status:'Statut des Claims',
+aging_lt15:'< 15 jours',aging_15_30:'15–30 jours',aging_30_60:'30–60 jours',aging_gt60:'> 60 jours',
+col_brand:'Marque',col_total:'Total',col_approval:'Approbation',col_credited_e:'Crédité €',col_dealer:'Dealer',col_country:'Pays',col_rejected:'Rej.',col_score:'Score',col_period:'Période',col_claims:'Claims',col_pct:'%'}
+};
+function T(k){return(I18N[LANG]||I18N.pt)[k]||k;}
+const BRANDS={'Peugeot':'psa','Citroen':'psa','Opel':'psa','DS':'psa','Eurorepar':'psa','Mahindra':'mahindra','BAIC':'chinese','Chery':'chinese','JMC':'chinese','JMC Trucks':'chinese','CAMC':'chinese','GAC':'chinese','Jetour':'chinese','Geely':'chinese','Dongfeng':'chinese','Forland':'chinese','JAC':'chinese','Ford':'generic','Ford Trucks':'generic','Renault':'generic','Renault Trucks':'generic','Kia':'generic','Nissan':'generic','Hyundai':'generic','Hyundai Trucks & Bus':'generic','Toyota':'generic','Toyota Forklifts':'generic','Fiat':'generic','Jeep':'generic','Seat':'generic','VW Comerciais':'generic','VW Passageiros':'generic','Isuzu':'generic','Isuzu Truck':'generic','Chevrolet':'generic','Mercedes-Benz':'generic','Honda':'generic','Audi':'generic','BMW':'generic','Volvo':'generic','UD Trucks':'generic','Landini':'generic','TATRA':'generic'};
+const CLAIM_TYPES={psa:['Pre-Approval Required','000 – Contractual Warranty','VNE – Intervention before Warranty Start Date'],mahindra:['Normal Warranty Claim','Extended Warranty','Service Plan','Special Requisition Approval (Pre-Approval)','Campaign/Recall'],chinese:['Normal Warranty','Extended Warranty','Campaign/Recall','Pre-Approval Required'],generic:['Normal Warranty','Extended Warranty','Goodwill','Campaign/Recall','Pre-Approval Required']};
+const DEALERS={'3S MOTORS':{country:'Cameroon',brands:['Fiat','Jeep','Nissan']},'AUTOSTAR':{country:'Central African Republic',brands:['Nissan']},'Akagera Business Group':{country:'Rwanda',brands:['Kia','Nissan']},'Alpha Ford':{country:'Tunisia',brands:['Ford']},'Caetano One CV, LDA':{country:'Cape Verde',brands:['Fiat','Ford','Jeep','Kia','Renault','Peugeot','Seat','Hyundai']},'CMC Investments Limited':{country:'Tanzania',brands:['Renault']},'Caetano Equipamentos, S.A.':{country:'Mozambique',brands:['JMC','VW Comerciais','VW Passageiros','Peugeot','Citroen','CAMC']},'Caetano Formula Moçambique':{country:'Mozambique',brands:['Renault']},'Caetano Formula Senegal':{country:'Senegal',brands:['Hyundai','Chevrolet','BAIC','Isuzu','Renault','Isuzu Truck','JMC Trucks','Mahindra']},'Caetano One Senegal':{country:'Senegal',brands:['Ford','Ford Trucks']},'Caetano Auto S.A':{country:'Cape Verde',brands:['Toyota']},'Caetano Peças Comercio e Serviços (SU) Lda':{country:'Angola',brands:['Toyota']},'Carrefour Automobiles':{country:'Mali',brands:['Renault','Fiat','Jeep','Citroen']},'Croco Motors':{country:'Zimbabwe',brands:['Renault']},'DAON Motors':{country:'RD Congo',brands:['Kia','Nissan']},'DEK Motors':{country:'Mauritania',brands:['Renault','Fiat']},'F - One Hazida LTD':{country:'Zambia',brands:['Renault']},'GN Lemai':{country:'Congo',brands:['Kia']},'Groupe SCF, S.A.':{country:'Guinea Conakry',brands:['Ford']},'HBI - Hmayene Bouamatou Import':{country:'Mauritania',brands:['Nissan']},'Hazida Motors':{country:'Zambia',brands:['Peugeot']},'La Maliene Automobile':{country:'Mali',brands:['Citroen']},"La Nigérienne de l'automobile":{country:'Niger',brands:['Renault','Nissan','Kia']},'MIG Motors':{country:'Benin / Niger',brands:['Fiat','Jeep','Kia','Renault']},'MIG Motors Togo':{country:'Togo',brands:['Kia','Fiat']},'MINING HOUSE':{country:'Guinea Conakry',brands:['Fiat']},'Merca Limited':{country:'Uganda',brands:['Renault']},'PRESTIGE AUTO CI SA':{country:'Ivory Coast',brands:['Fiat']},'Premium Mobility Solutions, LTD':{country:'Kenya',brands:['Renault']},'Prestige Motor Corporation':{country:'Liberia',brands:['Ford']},'Quantumnet Company':{country:'Gambia',brands:['Ford','Kia']},'RWANDAMOTOR LTD':{country:'Rwanda',brands:['Renault']},'Robert Hudson':{country:'Angola',brands:['Ford','Chery','Renault Trucks']},'SODIM TP Motors':{country:'Gabon',brands:['Nissan']},'Seta Guinné, S.A.':{country:'Guinea Conakry',brands:['Kia']},'Sogafric':{country:'Senegal',brands:['Fiat']},'Spear Motors':{country:'Uganda',brands:['Jeep']},'The Motorcenter East Africa':{country:'Uganda',brands:['Peugeot','Citroen']},'VIP MOTORS - Comércio Auto, Lda':{country:'Sao Tome and Principe',brands:['Kia']},'La Beninoise':{country:'Benin',brands:['Fiat','Jeep']},'La Togolaise':{country:'Togo',brands:['Jeep','Fiat']},'Portianga, S.A.':{country:'Portugal',brands:['Ford']},'SAME':{country:'Ivory Coast',brands:['Jeep','Fiat']},'Stansfield Motors Ltd':{country:'Malawi',brands:['Renault']},'TK Motors':{country:'Gambia',brands:['Jeep','Fiat']},'Interauto':{country:'Guiné-Bissau',brands:['Kia']},'Salvador Caetano Kenya Limited':{country:'Kenya',brands:['Hyundai','CAMC','Chery','Ford','Kia','Renault Trucks','Renault']},'Drive Angola':{country:'Angola',brands:['Chery','Renault Trucks','VW Passageiros']},'Sada Motors IC':{country:'Ivory Coast',brands:['Chery']},'MOTORCARE Uganda LTD':{country:'Uganda',brands:['Ford']}};
+const ALL_BRANDS=[...new Set(Object.values(DEALERS).flatMap(d=>d.brands))].sort();
+const ALL_DEALERS=Object.keys(DEALERS).sort();
+const KEY='wcpf',NCKEY='wcpf_nc',FTKEY='wcpf_ft',RTKEY='wcpf_rt',SESKEY='wcpf_ses',USRKEY='wcpf_usr',BCFGKEY='wcpf_bcfg';
+function LUsers(){try{return JSON.parse(localStorage.getItem(USRKEY)||'[]');}catch{return [];}}
+function SUsers(u){localStorage.setItem(USRKEY,JSON.stringify(u));}
+function LBCfg(){try{return JSON.parse(localStorage.getItem(BCFGKEY)||'{}');}catch{return {};}}
+function SBCfg(cfg){localStorage.setItem(BCFGKEY,JSON.stringify(cfg));}
+const LC=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return[]}};
+const SC=c=>localStorage.setItem(KEY,JSON.stringify(c));
+const LNC=()=>{try{return JSON.parse(localStorage.getItem(NCKEY)||'[]')}catch{return[]}};
+const SNC=n=>localStorage.setItem(NCKEY,JSON.stringify(n));
+const LFT=()=>{try{return JSON.parse(localStorage.getItem(FTKEY)||'[]')}catch{return[]}};
+const SFT=f=>localStorage.setItem(FTKEY,JSON.stringify(f));
+const LRT=()=>{try{return JSON.parse(localStorage.getItem(RTKEY)||'[]')}catch{return[]}};
+const SRT=r=>localStorage.setItem(RTKEY,JSON.stringify(r));
+const GID=b=>{const p=(b||'GEN').replace(/[^A-Za-z]/g,'').toUpperCase().slice(0,3)||'GEN',t=Date.now().toString(36).toUpperCase().slice(-4),r=Math.random().toString(36).slice(2,5).toUpperCase();return`CLM-${p}-${t}-${r}`};
+let SESSION=null;
+function loginTab(t){document.getElementById('lt-dealer').classList.toggle('on',t==='dealer');document.getElementById('lt-imp').classList.toggle('on',t==='importer');document.getElementById('login-dealer').style.display=t==='dealer'?'block':'none';document.getElementById('login-imp').style.display=t==='importer'?'block':'none';document.getElementById('login-err').classList.remove('on');}
+const FORM_FIELDS_CFG=[{key:'model',label:'Modelo',fid:'f-model'},{key:'salesDate',label:'Data Venda',fid:'f-sales'},{key:'salesKm',label:'KM Venda',fid:'f-salkm'},{key:'usage',label:'Usage/Destino',fid:'f-usage'},{key:'attr',label:'Atributos',fid:'f-attr'},{key:'custType',label:'Tipo Cliente',fid:'f-ctype'},{key:'custName',label:'Nome Cliente',fid:'f-cname'},{key:'claimNo',label:'Claim Nº',fid:'f-cln'},{key:'roOpen',label:'RO Open',fid:'f-roo'},{key:'roConc',label:'RO Conclusion',fid:'f-roc'},{key:'km',label:'Mileagem (km)',fid:'f-km'},{key:'complaint',label:'Complaint',fid:'f-cq'},{key:'diagnosis',label:'Diagnóstico',fid:'f-dg'},{key:'solution',label:'Solução',fid:'f-sol'},{key:'laborHours',label:'Horas MO',fid:'f-lh'},];
+const PROFILES_CFG=['psa','mahindra','chinese','generic'];
+const PROFILE_LABELS={'psa':'PSA/Stellantis','mahindra':'Mahindra','chinese':'Marcas Chinesas','generic':'Genérico'};
+function applyFormCfg(profile){const cfg=LBCfg()[profile]||{};FORM_FIELDS_CFG.forEach(f=>{const el=document.getElementById(f.fid);if(!el)return;const wrap=el.closest('.fd');if(!wrap)return;wrap.style.display=cfg[f.key]==='hidden'?'none':'';el.required=cfg[f.key]==='required';});}
+function renderAdmin(){renderBrandCfg();renderUsers();renderWarrantyCfg();renderDocReq();}
+function renderBrandCfg(){const cfg=LBCfg(),el=document.getElementById('adm-bcfg');if(!el)return;const optL={required:'Obrigatório',optional:'Opcional',hidden:'Oculto'};let h=`<div style="overflow-x:auto"><table class="ct" style="font-size:11px"><thead><tr><th>Campo</th>`;PROFILES_CFG.forEach(p=>h+=`<th>${PROFILE_LABELS[p]}</th>`);h+=`</tr></thead><tbody>`;FORM_FIELDS_CFG.forEach(f=>{h+=`<tr><td style="font-weight:500">${f.label}</td>`;PROFILES_CFG.forEach(p=>{const v=(cfg[p]||{})[f.key]||'optional';h+=`<td><select id="bcfg-${p}-${f.key}" style="font-size:10px;padding:2px 4px;background:var(--sf2);border:1px solid var(--bd);border-radius:4px;color:var(--tx)">`;['required','optional','hidden'].forEach(o=>h+=`<option value="${o}" ${v===o?'selected':''}>${optL[o]}</option>`);h+=`</select></td>`;});h+=`</tr>`;});h+=`</tbody></table></div>`;el.innerHTML=h;}
+function saveBrandCfg(){const cfg={};PROFILES_CFG.forEach(p=>{cfg[p]={};FORM_FIELDS_CFG.forEach(f=>{const el=document.getElementById(`bcfg-${p}-${f.key}`);if(el)cfg[p][f.key]=el.value;});});SBCfg(cfg);toast('Configuração guardada','s');}
+function renderUsers(){const users=LUsers(),el=document.getElementById('adm-usrs');if(!el)return;if(!users.length){el.innerHTML='<div style="color:var(--tx3);font-size:11px;font-family:var(--mo);padding:8px 0">Sem utilizadores criados. Utilizadores padrão (admin / teste) estão activos.</div>';return;}el.innerHTML=users.map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;margin-bottom:6px">`+`<div style="flex:1"><strong style="font-size:12px">${u.name}</strong> `+`<span class="badge ${u.role==='importer'?'b-a':'b-p'}" style="font-size:9px">${u.role==='importer'?'Importador':'Dealer'}</span>`+(u.dealer?` <span style="font-size:11px;color:var(--tx3)">${u.dealer}</span>`:"")+`</div><button class="btn bsm bd_" onclick="deleteUser('${u.id}')">Eliminar</button></div>`).join('');}
+function createUser(){const name=document.getElementById('new-uname').value.trim(),pass=document.getElementById('new-upass').value.trim(),role=document.getElementById('new-urole').value,dealer=document.getElementById('new-udealer').value;if(!name||!pass||!role){toast('Preencha nome, password e perfil','e');return;}if(role==='dealer'&&!dealer){toast('Selecione o dealer','e');return;}const users=LUsers();if(users.find(u=>u.name===name&&u.role===role)){toast('Utilizador já existe','e');return;}users.push({id:Date.now().toString(),name,pass,role,dealer:role==='dealer'?dealer:''});SUsers(users);renderUsers();document.getElementById('new-uname').value='';document.getElementById('new-upass').value='';toast('Utilizador '+name+' criado','s');}
+function deleteUser(id){if(!confirm('Eliminar este utilizador?'))return;SUsers(LUsers().filter(u=>u.id!==id));renderUsers();toast('Eliminado','s');}
+
+function renderStats(){
+const all=LC(),now=Date.now();
+const total=all.length;if(!total){document.getElementById('stat-body').innerHTML='<div style="text-align:center;padding:40px;color:var(--tx3);font-family:var(--mo)">Sem dados ainda.</div>';return;}
+const byStatus={};
+['pending','analysis','approved','credited','rejected','paid','archived','returned'].forEach(s=>byStatus[s]=all.filter(c=>c.status===s).length);
+const resolved=all.filter(c=>['approved','credited','paid','rejected'].includes(c.status));
+const approvalRate=resolved.length?Math.round(resolved.filter(c=>c.status!=='rejected').length/resolved.length*100):0;
+const closed=all.filter(c=>['paid','archived'].includes(c.status)&&c.submittedAt);
+const avgDays=closed.length?(closed.reduce((s,c)=>{const h=c.history?.[c.history.length-1];return s+(h?(new Date(h.date)-new Date(c.submittedAt))/86400000:0);},0)/closed.length).toFixed(1):'—';
+const totalCredited=LNC().reduce((s,n)=>s+(parseFloat(n.value)||0),0);
+const totalInvoiced=LFT().reduce((s,f)=>s+(parseFloat(f.value)||0),0);
+const openClaims=all.filter(c=>!['paid','archived','rejected'].includes(c.status));
+const aging={lt15:0,d15_30:0,d30_60:0,gt60:0};
+openClaims.forEach(c=>{const d=(now-new Date(c.submittedAt))/86400000;if(d<15)aging.lt15++;else if(d<30)aging.d15_30++;else if(d<60)aging.d30_60++;else aging.gt60++;});
+const brands={};
+all.forEach(c=>{if(!brands[c.brand])brands[c.brand]={total:0,appv:0,rej:0,amt:0};
+brands[c.brand].total++;if(['approved','credited','paid'].includes(c.status))brands[c.brand].appv++;
+if(c.status==='rejected')brands[c.brand].rej++;brands[c.brand].amt+=parseFloat(c.creditedAmount)||0;});
+const dealers={};
+all.forEach(c=>{if(!dealers[c.dealer])dealers[c.dealer]={total:0,appv:0,rej:0,amt:0};
+dealers[c.dealer].total++;if(['approved','credited','paid'].includes(c.status))dealers[c.dealer].appv++;
+if(c.status==='rejected')dealers[c.dealer].rej++;dealers[c.dealer].amt+=parseFloat(c.creditedAmount)||0;});
+const topDealers=Object.entries(dealers).sort((a,b)=>b[1].total-a[1].total).slice(0,10);
+const monthMap={};
+const nd=new Date();for(let i=5;i>=0;i--){const d=new Date(nd.getFullYear(),nd.getMonth()-i,1);const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;monthMap[k]=0;}
+all.forEach(c=>{if(!c.submittedAt)return;const d=new Date(c.submittedAt);const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;if(k in monthMap)monthMap[k]++;});
+const maxM=Math.max(...Object.values(monthMap),1);
+const stColors={pending:'var(--ac)',analysis:'#f59e0b',approved:'var(--ok)',credited:'#10b981',rejected:'var(--err)',paid:'#7c3aed',archived:'var(--tx3)',returned:'#d97706'};
+const el=document.getElementById('stat-body');if(!el)return;
+el.innerHTML=
+`<div class='kg' style='grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px'>
+<div class='kp'><div class='kl'>${T('kpi_total')}</div><div class='kv'>${total}</div></div>
+<div class='kp kpp'><div class='kl'>${T('kpi_pending')}</div><div class='kv'>${byStatus.pending||0}</div></div>
+<div class='kp kpa'><div class='kl'>${T('stat_approval')}</div><div class='kv'>${approvalRate}%</div></div>
+<div class='kp' style='background:rgba(22,163,74,.07)'><div class='kl'>${T('stat_credited_total')}</div><div class='kv' style='font-size:15px'>${fm(totalCredited)} €</div></div>
+<div class='kp' style='background:rgba(139,92,246,.07)'><div class='kl'>${T('stat_invoiced_total')}</div><div class='kv' style='font-size:15px'>${fm(totalInvoiced)} €</div></div>
+<div class='kp'><div class='kl'>${T('stat_avgdays')}</div><div class='kv'>${avgDays}</div></div>
+</div>
+<div style='display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px'>
+<div class='adm-sec'><h2>${T('stat_status')}</h2>
+${Object.entries(byStatus).filter(([,v])=>v>0).map(([s,v])=>`
+<div style='display:flex;align-items:center;gap:8px;margin-bottom:5px'>
+<div style='width:100px'>${bdg(s)}</div>
+<div style='flex:1;background:var(--sf2);border-radius:3px;height:14px;overflow:hidden'><div style='width:${Math.round(v/total*100)}%;height:100%;border-radius:3px;background:${stColors[s]||'var(--ac)'}'></div></div>
+<div style='width:28px;text-align:right;font-size:11px;font-weight:600'>${v}</div>
+</div>`).join('')}
+</div>
+<div class='adm-sec'><h2>${T('stat_aging')}</h2>
+<table class='ct' style='font-size:11px'><thead><tr><th>${T('col_period')}</th><th>${T('col_claims')}</th><th>${T('col_pct')}</th></tr></thead><tbody>
+${[[T('aging_lt15'),aging.lt15,'var(--ok)'],[T('aging_15_30'),aging.d15_30,'var(--tx2)'],[T('aging_30_60'),aging.d30_60,'var(--warn)'],[T('aging_gt60'),aging.gt60,'var(--err)']].map(([l,v,col])=>`
+<tr><td>${l}</td><td style='text-align:center;font-weight:600;color:${v>0?col:'var(--tx3)'}'>${v}</td>
+<td><div style='background:var(--sf2);border-radius:3px;height:10px;overflow:hidden'><div style='width:${openClaims.length?Math.round(v/openClaims.length*100):0}%;height:100%;background:${col}'></div></div></td>
+</tr>`).join('')}
+</tbody></table></div>
+</div>
+<div style='display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px'>
+<div class='adm-sec'><h2>${T('stat_by_brand')}</h2>
+<table class='ct' style='font-size:11px'><thead><tr><th>${T('col_brand')}</th><th>${T('col_total')}</th><th>${T('col_approval')}</th><th>${T('col_credited_e')}</th></tr></thead><tbody>
+${Object.entries(brands).sort((a,b)=>b[1].total-a[1].total).map(([brand,d])=>`
+<tr><td><span class='chip ${BRANDS[brand]||'generic'}' style='font-size:9px'>${brand}</span></td>
+<td style='text-align:center'>${d.total}</td>
+<td style='text-align:center'>${d.total?Math.round(d.appv/d.total*100):0}%</td>
+<td style='text-align:right'>${fm(d.amt)} €</td></tr>`).join('')}
+</tbody></table></div>
+<div class='adm-sec'><h2>${T('stat_trend')}</h2>
+<div style='display:flex;align-items:flex-end;gap:5px;height:90px;padding:4px 0 20px'>
+${Object.entries(monthMap).map(([mo,v])=>`
+<div style='flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;height:100%'>
+<div style='font-size:9px;color:var(--tx3)'>${v||''}</div>
+<div style='width:100%;background:var(--ac);opacity:0.85;border-radius:3px 3px 0 0;min-height:${v?4:0}px;height:${v?Math.round(v/maxM*60):0}px'></div>
+<div style='font-size:8px;color:var(--tx3);white-space:nowrap'>${mo.slice(5)}</div>
+</div>`).join('')}
+</div></div>
+</div>
+<div class='adm-sec'><h2>${T('stat_by_dealer')}</h2>
+<div style='overflow-x:auto'><table class='ct' style='font-size:11px'>
+<thead><tr><th>${T('col_dealer')}</th><th>${T('col_country')}</th><th>${T('col_total')}</th><th>${T('col_approval')}</th><th>${T('col_rejected')}</th><th>${T('col_credited_e')}</th><th>${T('col_score')}</th></tr></thead><tbody>
+${topDealers.map(([dealer,d])=>{const rate=d.total?Math.round(d.appv/d.total*100):0;const rejR=d.total?d.rej/d.total:0;const score=Math.min(100,Math.round(rate*0.7+(rejR<0.1?30:rejR<0.2?15:0)));const sc=score>=80?'var(--ok)':score>=55?'var(--warn)':'var(--err)';return`
+<tr><td style='font-weight:500'>${dealer}</td><td style='color:var(--tx3)'>${DEALERS[dealer]?.country||'—'}</td>
+<td style='text-align:center'>${d.total}</td><td style='text-align:center'>${rate}%</td>
+<td style='text-align:center;color:${d.rej>0?'var(--err)':'var(--tx3)'}'>${d.rej}</td>
+<td style='text-align:right'>${fm(d.amt)} €</td>
+<td style='text-align:center'><strong style='color:${sc}'>${score}</strong>/100</td></tr>`;}).join('')}
+</tbody></table></div></div>`;}
+
+function doLogin(role){const err=document.getElementById('login-err');err.classList.remove('on');if(role==='dealer'){const dealer=document.getElementById('li-dealer').value;const u=document.getElementById('li-user').value.trim(),p=document.getElementById('li-pass').value.trim();const du=LUsers().find(x=>x.role==='dealer'&&x.name===u&&x.pass===p&&x.dealer===dealer);if((du||(u==='teste'&&p==='teste'))&&dealer){SESSION={role:'dealer',dealer,userName:du?.name||u};startApp();return;}err.classList.add('on');}else{const u=document.getElementById('li-iuser').value.trim(),p=document.getElementById('li-ipass').value.trim();const iu=LUsers().find(x=>x.role==='importer'&&x.name===u&&x.pass===p);if(iu||(u==='admin'&&p==='admin')){SESSION={role:'importer',userName:iu?.name||u};startApp();return;}err.classList.add('on');}}
+function logout(){SESSION=null;localStorage.removeItem(SESKEY);document.getElementById('app').classList.remove('on');document.getElementById('login').classList.remove('off');document.getElementById('li-pass').value='';document.getElementById('li-ipass').value='';}
+function startApp(){localStorage.setItem(SESKEY,JSON.stringify(SESSION));LANG=localStorage.getItem('wcpf_lang')||'pt';document.getElementById('login').classList.add('off');document.getElementById('app').classList.add('on');buildNav();if(SESSION.role==='dealer'){document.getElementById('uav').textContent=SESSION.dealer.slice(0,2).toUpperCase();document.getElementById('ulabel').textContent=SESSION.dealer+' · '+DEALERS[SESSION.dealer].country;setupDealerForm();SW('vs');}else{document.getElementById('uav').textContent='IM';document.getElementById('ulabel').textContent='Importador (Admin)';SW('vd');}}
+function populateAdminDealers(){const sel=document.getElementById('new-udealer');if(!sel)return;sel.innerHTML='<option value="">Selecionar...</option>'+ALL_DEALERS.map(d=>`<option value="${d}">${d}</option>`).join('');}
+function buildNav(){const nav=document.getElementById('navtabs');if(SESSION.role==='dealer'){nav.innerHTML<`<button class="ntab on" id="nt-vs" onclick="SW('vs')">${T('nav_submit')}</button><button class="ntab" id="nt-vdl" onclick="SW('vdl')">${T('nav_myclaims')}</button>`;document.getElementById('langswitch')?.querySelectorAll('.langbtn').forEach(b=>b.classList.toggle('on',b.dataset.l===LANG));}else{nav.innerHTML=`<button class="ntab on" id="nt-vd" onclick="SW('vd')">${T('nav_bo')}</button><button class="ntab" id="nt-vnc" onclick="SW('vnc')">${T('nav_ncft')}</button><button class="ntab" id="nt-vrate" onclick="SW('vrate')">${T('nav_rates')}</button><button class="ntab" id="nt-vnet" onclick="SW('vnet')">${T('nav_net')}</button><button class="ntab" id="nt-vadm" onclick="SW('vadm')">${T('nav_admin')}</button><button class="ntab" id="nt-vstat" onclick="SW('vstat')">${T('nav_stats')}</button>`;document.getElementById('langswitch')?.querySelectorAll('.langbtn').forEach(b=>b.classList.toggle('on',b.dataset.l===LANG));}}
+function SW(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));document.getElementById(id).classList.add('on');const nt=document.getElementById('nt-'+id);if(nt)nt.classList.add('on');if(id==='vd'){populateImporterFilters();rdb();}if(id==='vdl')rdp();if(id==='vnc'){populateNCFT();renderNCorl();renderNCl();renderFTorl();}if(id==='vrate'){populateRateSelectors();renderRates();}if(id==='vnet')renderNet();if(id==='vadm'){populateAdminDealers();renderAdmin();}if(id==='vstat')renderStats();}
+function setupDealerForm(){const d=SESSION.dealer;document.getElementById('f-dl').value=d;document.getElementById('vs-sub').textContent=`${d} · ${DEALERS[d].country} · marcas: ${DEALERS[d].brands.join(', ')}`;document.getElementById('f-br').innerHTML='<option value="">Selecionar...</option>'+DEALERS[d].brands.map(b=>`<option value="${b}">${b}</option>`).join('');}
+let cS=1;
+function GS(n){document.getElementById('s'+cS).classList.remove('on');const t=document.getElementById('pt'+cS);t.classList.remove('on');if(n>cS)t.classList.add('dn');else t.classList.remove('dn');cS=n;document.getElementById('s'+n).classList.add('on');document.getElementById('pt'+n).classList.add('on');if(n===6)buildRev();window.scrollTo({top:56,behavior:'smooth'});}
+function onBrand(v){['cb-psa','cb-mah','cb-chi','cb-gen','cb-none'].forEach(id=>{document.getElementById(id).classList.remove('on');document.getElementById(id).style.display='none';});document.getElementById('mah-photo').style.display='none';const prof=BRANDS[v];if(prof==='psa'){const e=document.getElementById('cb-psa');e.style.display='block';e.classList.add('on');if(!document.querySelectorAll('#fc-list > div').length){addCode('fc');addCode('cc');addCode('lc');}}else if(prof==='mahindra'){const e=document.getElementById('cb-mah');e.style.display='block';e.classList.add('on');document.getElementById('mah-photo').style.display='flex';}else if(prof==='chinese'){const e=document.getElementById('cb-chi');e.style.display='block';e.classList.add('on');}else if(prof==='generic'){document.getElementById('cb-gen').style.display='block';}else{document.getElementById('cb-none').style.display='block';}const sel=document.getElementById('f-ctype2');if(CLAIM_TYPES[prof]){sel.innerHTML='<option value="">Selecionar...</option>'+CLAIM_TYPES[prof].map(t=>`<option>${t}</option>`).join('');}else sel.innerHTML='<option value="">Selecione a marca primeiro</option>';applyFormCfg(prof||'generic');updateFormCurrency(prof||'generic');}
+function addCode(type){const el=document.getElementById(type+'-list');const d=document.createElement('div');d.style.cssText='display:flex;gap:4px;margin-bottom:4px';d.innerHTML<`<input class="codeinp" type="text" placeholder="${type.toUpperCase()}" style="flex:2"><input class="codedesc" type="text" placeholder="Descrição" style="flex:3"><button class="btn bg bsm" onclick="this.parentElement.remove()">✕</button>`;el.appendChild(d);}
+function getCodes(type){return Array.from(document.querySelectorAll('#'+type+'-list > div')).map(d=>{const i=d.querySelector('.codeinp').value,desc=d.querySelector('.codedesc').value;return i?{code:i,desc}:null;}).filter(Boolean);}
+function adr(){const tr=document.createElement('tr');tr.className='pr';tr.innerHTML='<td style="text-align:center"><input type="radio" name="causal" style="width:auto;accent-color:var(--err)"></td><td><input type="text" placeholder="Part Code"></td><td><input type="text" placeholder="Descrição"></td><td><input type="number" value="1" min="1" oninput="cgParts()" style="width:60px"></td><td><input type="number" value="0" min="0" step="0.01" placeholder="0.00" oninput="cgParts()" style="width:72px"></td><td class="mn pt-t" style="font-size:11px;font-family:var(--mo);text-align:right">0.00 €</td><td><button class="btn bg bsm" onclick="rmr(this)">✕</button></td>';document.getElementById('pb').appendChild(tr);cgParts();}
+function rmr(b){b.closest('tr').remove();cgParts();}
+function adsr(){const tr=document.createElement('tr');tr.className='sr';tr.innerHTML='<td><input type="text" placeholder="Descrição"></td><td><input type="number" placeholder="0.00" step="0.01" oninput="cgSub()"></td><td><button class="btn bg bsm" onclick="rmsr(this)">✕</button></td>';document.getElementById('sb').appendChild(tr);}
+function rmsr(b){b.closest('tr').remove();cgSub();}
+function cgParts(){let total=0;document.querySelectorAll('.pr').forEach(r=>{const qty=parseFloat(r.cells[3].querySelector('input').value)||0;const uc=parseFloat(r.cells[4].querySelector('input').value)||0;const rowTotal=qty*uc;if(r.cells[5])r.cells[5].textContent=rowTotal.toFixed(2)+' €';total+=rowTotal;});const ft=document.getElementById('f-ptot');if(ft)ft.value=total.toFixed(2);}
+function cgSub(){let t=0;document.querySelectorAll('.sr').forEach(r=>t+=parseFloat(r.cells[1].querySelector('input').value)||0);document.getElementById('f-subtot').value=t.toFixed(2);}
+function getParts(){return Array.from(document.querySelectorAll('.pr')).map(r=>({causal:r.cells[0].querySelector('input').checked,code:r.cells[1].querySelector('input').value,desc:r.cells[2].querySelector('input').value,qty:parseFloat(r.cells[3].querySelector('input').value)||0,unitCost:parseFloat(r.cells[4].querySelector('input').value)||0})).filter(p=>p.code);}
+function getSublet(){return Array.from(document.querySelectorAll('.sr')).map(r=>({desc:r.cells[0].querySelector('input').value,usd:parseFloat(r.cells[1].querySelector('input').value)||0})).filter(s=>s.desc||s.usd);}
+const AST={oldpart:[],newpart:[],odo:[],vinphoto:[],front:[],installed:[],docs:[],nc:[],ft2:[]};
+function onFile(e,slot){Array.from(e.target.files).forEach(f=>AST[slot].push({name:f.name,size:f.size,mime:f.type}));renderFL(slot);}
+function drp(e,slot){e.preventDefault();dlv(e.currentTarget);Array.from(e.dataTransfer.files).forEach(f=>AST[slot].push({name:f.name,size:f.size,mime:f.type}));renderFL(slot);}
+function dov(e,el){e.preventDefault();el.classList.add('drag');}
+function dlv(el){el.classList.remove('drag');}
+function renderFL(slot){const el=document.getElementById('fl-'+slot);if(!el)return;el.innerHTML=AST[slot].map((f,i)=>`<div class="fi"><span class="fi-ico">${ficon(f.name)}</span><span class="fi-name">${f.name}</span><span class="fi-sz">${fsize(f.size)}</span><button class="fi-rm" onclick="rmFile('${slot}',${i})">✕</button></div>`).join('');}
+function rmFile(slot,i){AST[slot].splice(i,1);renderFL(slot);}
+function ficon(n){const e=(n||'').split('.').pop().toLowerCase();return e==='pdf'?'📄':['jpg','jpeg','png','webp','gif'].includes(e)?'🖼':['mp4','mov'].includes(e)?'🎥':'📎';}
+function fsize(b){return b>=1048576?(b/1048576).toFixed(1)+'MB':Math.round(b/1024)+'KB';}
+function buildRev(){const brand=document.getElementById('f-br').value,dealer=SESSION.dealer,vin=document.getElementById('f-vin').value,or=document.getElementById('f-or').value,ct=document.getElementById('f-ctype2').value,lh=document.getElementById('f-lh').value;document.getElementById('f-lhtot').value=lh||0;const parts=getParts(),sublet=getSublet(),rate=getRate(brand,dealer),moc=rate*(parseFloat(lh)||0);const totalF=['oldpart','newpart','odo','vinphoto','front','installed','docs'].reduce((s,k)=>s+AST[k].length,0);document.getElementById('rev').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 26px;margin-bottom:12px"><div>🏢 <strong style="color:var(--tx3)">Dealer:</strong> <strong style="color:var(--tx)">${dealer}</strong></div><div>🏷 <strong style="color:var(--tx3)">Marca:</strong> <strong style="color:var(--ac)">${brand||'—'}</strong> ${brand?`<span class="chip ${BRANDS[brand]}">${BRANDS[brand]}</span>`:''}</div><div>🔩 <strong style="color:var(--tx3)">VIN:</strong> ${vin||'—'}</div><div>📄 <strong style="color:var(--tx3)">OR:</strong> ${or||'—'}</div><div>📋 <strong style="color:var(--tx3)">Claim Type:</strong> ${ct||'—'}</div><div>⏱ <strong style="color:var(--tx3)">Horas MO:</strong> <strong style="color:var(--ac)">${lh||0}h</strong></div><div>🔧 <strong style="color:var(--tx3)">Peças:</strong> ${parts.length}</div><div>💧 <strong style="color:var(--tx3)">Sublet:</strong> ${sublet.length} (${sublet.reduce((s,x)=>s+x.usd,0).toFixed(2)} USD)</div></div><div class="info-box">⏱ Custo MO estimado: ${lh||0}h × ${rate>0?fm(rate)+' €/h':'(taxa não definida)'} = <strong style="color:var(--ok)">${rate>0?fm(moc)+' €':'a definir no back-office'}</strong> · sem IVA</div><div style="margin-top:8px;padding:7px 12px;background:rgba(22,163,74,.06);border:1px solid rgba(22,163,74,.2);border-radius:8px;font-size:11px;color:#15803d">🗄 ${totalF} ficheiro(s) prontos</div>`;}
+function submitClaim(){const brand=document.getElementById('f-br').value,dealer=SESSION.dealer;if(!brand){toast('Selecione a marca.','e');return;}const vinVal=document.getElementById('f-vin').value,orVal=document.getElementById('f-or').value;const dupChk=LC().find(x=>x.vin&&x.vin===vinVal&&x.or&&x.or===orVal&&x.dealer===dealer);if(dupChk){toast('⚠ Possível duplicado: '+dupChk.id+' já tem este VIN+OR. Verifique antes de submeter.','w');}const id=GID(brand),prof=BRANDS[brand];const slots=['oldpart','newpart','odo','vinphoto','front','installed','docs'];const attachments=[];slots.forEach(slot=>AST[slot].forEach(f=>attachments.push({slot,name:f.name,size:f.size,mime:f.mime,path:`${dealer}/${id}/${slot}/${f.name}`})));const claim={id,brand,profile:prof,dealer,country:DEALERS[dealer].country,vin:document.getElementById('f-vin').value,model:document.getElementById('f-model').value,salesDate:document.getElementById('f-sales').value,salesKm:document.getElementById('f-salkm').value,usage:document.getElementById('f-usage').value,attr:document.getElementById('f-attr').value,custType:document.getElementById('f-ctype').value,custName:document.getElementById('f-cname').value,or:document.getElementById('f-or').value,claimNo:document.getElementById('f-cln').value,roOpen:document.getElementById('f-roo').value,roConc:document.getElementById('f-roc').value,km:document.getElementById('f-km').value,claimType:document.getElementById('f-ctype2').value,complaint:document.getElementById('f-cq').value,diagnosis:document.getElementById('f-dg').value,solution:document.getElementById('f-sol').value,did:document.getElementById('f-did')?.value||'',alloc:document.getElementById('f-alloc')?.value||'',faultCodes:prof==='psa'?getCodes('fc'):[],causeCodes:prof==='psa'?getCodes('cc'):[],labourCodes:prof==='psa'?getCodes('lc'):[],tar:document.getElementById('f-tar')?.value||'',ctk:document.getElementById('f-ctk')?.value||'',parts:getParts(),partsTotal:(()=>{const ps=getParts();return ps.reduce((s,p)=>s+(p.qty||0)*(p.unitCost||0),0);})(),laborHours:document.getElementById('f-lh').value,labourLines:getLabour(),currency:getCurr(prof),sublet:getSublet(),attachments,status:'pending',ncBrand:'',invoice:'',submittedAt:new Date().toISOString(),history:[{state:'Submetida',date:new Date().toISOString(),user:dealer,note:`${attachments.length} ficheiro(s) · ${document.getElementById('f-lh').value||0}h MO`}]};const warCfg=(LWarranty()||{})[brand];if(warCfg){const sD=new Date(claim.salesDate),rD=new Date(claim.roOpen);if(!isNaN(sD)&&!isNaN(rD)){const yr=(rD-sD)/(365.25*86400000);const kmDiff=parseFloat(claim.km||0)-parseFloat(claim.salesKm||0);if(yr>warCfg.years||kmDiff>warCfg.km){claim.warrantyFlag=true;toast('⚠ Atenção: veículo pode estar fora do período de garantia!','w');}}}const all=LC();all.unshift(claim);SC(all);document.querySelectorAll('.fstep').forEach(s=>s.classList.remove('on'));document.querySelector('.pbar').style.display='none';document.querySelector('.fhdr').style.display='none';document.getElementById('ss').classList.add('on');document.getElementById('cidbox').textContent=id;document.getElementById('ss-sum').textContent=`${attachments.length} ficheiro(s) · ${claim.laborHours||0}h de MO`;addNotif('📋 Nova claim '+id+' de '+dealer,id,'importer',null);toast('Claim '+id+' submetida!','s');}
+function newClaim(){location.reload();}
+function populateImporterFilters(){const fbr=document.getElementById('fbr');if(fbr.options.length<=1)fbr.innerHTML='<option value="">Todas as marcas</option>'+ALL_BRANDS.map(b=>`<option>${b}</option>`).join('');const fdl=document.getElementById('fdl');if(fdl.options.length<=1)fdl.innerHTML='<option value="">Todos os dealers</option>'+ALL_DEALERS.map(d=>`<option>${d}</option>`).join('');}
+function populateNCFT(){const ftdl=document.getElementById('ft-dl');if(ftdl.options.length<=1)ftdl.innerHTML='<option value="">Selecionar...</option>'+ALL_DEALERS.map(d=>`<option>${d}</option>`).join('');}
+function populateRateSelectors(){const rbr=document.getElementById('r-br');if(rbr.options.length===0)rbr.innerHTML=ALL_BRANDS.map(b=>`<option>${b}</option>`).join('');const rdl=document.getElementById('r-dl');if(rdl.options.length===0)rdl.innerHTML=ALL_DEALERS.map(d=>`<option>${d}</option>`).join('');}
+function getRate(brand,dealer){const r=LRT().find(x=>x.brand===brand&&x.dealer===dealer);return r?parseFloat(r.rate):0;}
+function moCost(c){return getRate(c.brand,c.dealer)*(parseFloat(c.laborHours)||0);}
+function acceptedMOVal(c){return c.acceptedMO!=null?(parseFloat(c.acceptedMO)||0):moCost(c);}
+function acceptedMaterialsVal(c){return c.acceptedMaterials!=null?(parseFloat(c.acceptedMaterials)||0):0;}
+function acceptedSubletVal(c){return c.acceptedSublet!=null?(parseFloat(c.acceptedSublet)||0):(c.sublet||[]).reduce((s,x)=>s+(parseFloat(x.usd)||0),0);}
+function acceptedTotal(c){return acceptedMOVal(c)+acceptedMaterialsVal(c)+acceptedSubletVal(c);}
+function creditedValue(c){return c.creditedAmount!=null?(parseFloat(c.creditedAmount)||0):acceptedTotal(c);}
+function prevAcc(id){const c=LC().find(x=>x.id===id);if(!c)return;const el=document.getElementById('acc-preview');if(!el)return;const mo=parseFloat(document.getElementById('inp-amo')?.value)||0,m=parseFloat(document.getElementById('inp-amat')?.value)||0,s=parseFloat(document.getElementById('inp-asub')?.value)||0,tot=mo+m+s;el.innerHTML<`<strong style="color:var(--tx3)">MO:</strong> ${fm(mo)} € · <strong style="color:var(--tx3)">Materiais:</strong> ${fm(m)} € · <strong style="color:var(--tx3)">Sublet:</strong> ${fm(s)} € · <strong style="color:var(--ok)">Total a creditar:</strong> ${fm(tot)} €`;}
+function renderRates(){const rts=LRT(),tb=document.getElementById('rate-tb');if(!rts.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--tx3);font-family:var(--mo)">Sem taxas definidas</td></tr>';return;}tb.innerHTML=rts.map((r,i)=>`<tr><td><span class="chip ${BRANDS[r.brand]||'generic'}">${r.brand}</span></td><td>${r.dealer}</td><td class="mn" style="color:var(--ok)">${fm(r.rate)} €/h</td><td><button class="abtn" onclick="delRate(${i})">✕</button></td></tr>`).join('');}
+function saveRate(){const brand=document.getElementById('r-br').value,dealer=document.getElementById('r-dl').value,val=parseFloat(document.getElementById('r-val').value);if(!val||val<=0){toast('Insira taxa válida.','e');return;}const rts=LRT();const idx=rts.findIndex(x=>x.brand===brand&&x.dealer===dealer);if(idx>=0)rts[idx].rate=val;else rts.push({brand,dealer,rate:val});SRT(rts);document.getElementById('r-val').value='';renderRates();toast(`Taxa ${brand} / ${dealer} = ${fm(val)} €/h`,'s');}
+function delRate(i){const rts=LRT();rts.splice(i,1);SRT(rts);renderRates();toast('Taxa removida','s');}
+function rdb(){const all=LC();const p=all.filter(c=>c.status==='pending').length,a=all.filter(c=>['approved','credited'].includes(c.status)).length,r=all.filter(c=>c.status==='rejected').length,pd=all.filter(c=>c.status==='paid').length;document.getElementById('dsub').textContent=`${all.length} claims · ${ALL_DEALERS.length} dealers · ${ALL_BRANDS.length} marcas · custo MO total: ${fm(all.reduce((s,c)=>s+moCost(c),0))} €`;document.getElementById('dkpi').innerHTML=`<div class="kp"><div class="kl">${T('kpi_total')}</div><div class="kv">${all.length}</div></div><div class="kp kpp"><div class="kl">${T('kpi_pending')}</div><div class="kv">${p}</div></div><div class="kp kpa"><div class="kl">${T('kpi_approved')}</div><div class="kv">${a}</div></div><div class="kp kpr"><div class="kl">${T('kpi_rejected')}</div><div class="kv">${r}</div></div><div class="kp kpd"><div class="kl">${T('kpi_paid')}</div><div class="kv">${pd}</div></div>`;rtbl(all,'dtb',true);}
+function filterC(){let all=LC();const s=document.getElementById('fsrch').value.toLowerCase(),b=document.getElementById('fbr').value,st=document.getElementById('fst').value,d=document.getElementById('fdl').value;if(s)all=all.filter(c=>(c.vin+c.or+c.dealer+c.id).toLowerCase().includes(s));if(b)all=all.filter(c=>c.brand===b);if(st)all=all.filter(c=>c.status===st);if(d)all=all.filter(c=>c.dealer===d);rtbl(all,'dtb',true);}
+function rtbl(list,tbid,bo){const tb=document.getElementById(tbid);if(!tb)return;if(!list.length){tb.innerHTML<`<tr><td colspan="${bo?13:10}" style="text-align:center;padding:32px;color:var(--tx3);font-family:var(--mo)">Sem claims</td></tr>`;return;}if(bo)tb.innerHTML=list.map(c=>{const rate=getRate(c.brand,c.dealer),moc=moCost(c);return`<tr onclick="om('${c.id}')"><td onclick="event.stopPropagation()" style="text-align:center"><input type="checkbox" class="bulk-chk" data-id="${c.id}" onclick="event.stopPropagation();toggleBulk('${c.id}')" style="width:auto" ${bulkSel.includes(c.id)?'checked':''}></td><td class="mn" style="color:var(--ac)">${c.id}</td><td>${c.dealer}</td><td class="mn">${c.country||'—'}</td><td><span class="chip ${BRANDS[c.brand]||'generic'}">${c.brand}</span></td><td class="mn">${c.vin||'—'}</td><td class="mn">${c.or||'—'}</td><td class="mn">${c.roConc||'—'}</td><td class="mn" style="color:var(--ac)">${c.laborHours||0}h</td><td class="mn" style="color:${rate>0?'var(--ok)':'var(--warn)'}">${rate>0?fm(moc)+(c.currency==='USD'?' $':' €'):'taxa?'}</td><td>${bdg(c.status)}${c.warrantyFlag?'<span title="Fora período garantia" style="margin-left:3px">⚠</span>':''}</td><td class="mn">${c.ncBrand?`<span style="color:var(--ok)">${c.ncBrand}</span>`:'<span style="color:var(--tx3)">—</span>'}</td><td><button class="abtn" onclick="event.stopPropagation();om('${c.id}')">Ver →</button></td></tr>`;}).join('');else tb.innerHTML=list.map(c=>`<tr onclick="om('${c.id}')"><td class="mn" style="color:var(--ac)">${c.id}</td><td><span class="chip ${BRANDS[c.brand]||'generic'}">${c.brand}</span></td><td class="mn">${c.vin||'—'}</td><td class="mn">${c.or||'—'}</td><td class="mn">${c.roConc||'—'}</td><td class="mn" style="color:var(--ac)">${c.laborHours||0}h</td><td>${bdg(c.status)}</td><td class="mn">${c.ncBrand?`<span style="color:var(--ok)">${c.ncBrand}</span>`:'<span style="color:var(--tx3)">—</span>'}</td><td class="mn">${c.invoice?`<span style="color:#7c3aed">${c.invoice}</span>`:'<span style="color:var(--tx3)">—</span>'}</td><td><button class="abtn" onclick="event.stopPropagation();om('${c.id}')">Ver →</button></td></tr>`).join('');}
+function renderNet(){const s=(document.getElementById('net-s').value||'').toLowerCase();document.getElementById('net-sub').textContent=`${ALL_DEALERS.length} concessionários · ${ALL_BRANDS.length} marcas OEM`;let rows=ALL_DEALERS.map(d=>({name:d,...DEALERS[d]}));if(s)rows=rows.filter(r=>(r.name+r.country+r.brands.join(' ')).toLowerCase().includes(s));document.getElementById('net-tb').innerHTML=rows.map(r=>`<tr><td><strong>${r.name}</strong></td><td class="mn">${r.country}</td><td><div class="brand-pills">${r.brands.map(b=>`<span class="chip ${BRANDS[b]||'generic'}">${b}</span>`).join('')}</div></td><td class="mn" style="color:var(--tx3)">teste / teste</td></tr>`).join('');}
+let ncSel=[];
+function renderNCorl(){const s=(document.getElementById('nc-s').value||'').toLowerCase();let cl=LC().filter(c=>['approved','credited'].includes(c.status));if(s)cl=cl.filter(c=>(c.or+c.dealer+c.id+c.brand).toLowerCase().includes(s));const el=document.getElementById('nc-orl');if(!cl.length){el.innerHTML='<div style="text-align:center;padding:16px;color:var(--tx3);font-family:var(--mo);font-size:11px">Sem OR\'s aprovadas</div>';return;}el.innerHTML=cl.map(c=>`<div class="ori ${ncSel.includes(c.id)?'sel':''}" onclick="togNC('${c.id}',this)"><input type="checkbox" ${ncSel.includes(c.id)?'checked':''} onclick="event.stopPropagation();togNC('${c.id}',this.closest('.ori'))"><div style="flex:1"><div class="ori-id">${c.or} <span class="chip ${BRANDS[c.brand]||'generic'}" style="font-size:9px">${c.brand}</span>${c.status==='credited'?' <span class="badge b-cr" style="font-size:9px">já NC</span>':''}</div><div class="ori-mt">${c.dealer} · MO ${fm(acceptedMOVal(c))} € · Mat ${fm(acceptedMaterialsVal(c))} € · Sub ${fm(acceptedSubletVal(c))} €</div></div><div class="ori-vl">${fm(acceptedTotal(c))} €</div></div>`).join('');updNCT();}
+function togNC(id,el){const i=ncSel.indexOf(id);if(i>=0){ncSel.splice(i,1);el.classList.remove('sel');el.querySelector('input').checked=false;}else{ncSel.push(id);el.classList.add('sel');el.querySelector('input').checked=true;}updNCT();}
+function updNCT(){const all=LC(),v=ncSel.reduce((s,id)=>{const c=all.find(x=>x.id===id);return s+(c?acceptedTotal(c):0);},0);document.getElementById('nc-cnt').textContent=`${ncSel.length} OR's · ${fm(v)} €`;document.getElementById('nc-val').value=v.toFixed(2);}
+function createNC(){const num=document.getElementById('nc-num').value.trim();if(!num){toast('Insira nº NC.','e');return;}if(!ncSel.length){toast('Selecione OR\'s.','e');return;}const all=LC(),v=ncSel.reduce((s,id)=>{const c=all.find(x=>x.id===id);return s+(c?acceptedTotal(c):0);},0);const ncDoc=AST.nc[0];const nc={id:num,value:v,orIds:[...ncSel],doc:ncDoc?ncDoc.name:'',path:ncDoc?`NC/${num}/${ncDoc.name}`:'',createdAt:new Date().toISOString(),currency:getCurr((all.find(function(x){return x.id===ncSel[0];})||{}).profile||'generic')};ncSel.forEach(id=>{const i=all.findIndex(c=>c.id===id);if(i>=0){all[i].ncBrand=num;all[i].status='credited';all[i].creditedAmount=acceptedTotal(all[i]);all[i].history=all[i].history||[];all[i].history.push({state:'Creditada NC',date:new Date().toISOString(),user:'Importador',note:`NC: ${num} · ${fm(acceptedTotal(all[i]))} € (MO ${fm(acceptedMOVal(all[i]))} € · Mat ${fm(acceptedMaterialsVal(all[i]))} € · Sub ${fm(acceptedSubletVal(all[i]))} €)`});}});SC(all);const ncs=LNC();ncs.unshift(nc);SNC(ncs);ncSel=[];AST.nc=[];document.getElementById('nc-num').value='';document.getElementById('fl-nc').innerHTML='';renderNCorl();renderNCl();renderFTorl();toast(`NC ${num} criada — ${nc.orIds.length} OR's`,'s');}
+function renderNCl(){const ncs=LNC(),all=LC(),el=document.getElementById('nc-lst');if(!ncs.length){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--tx3);font-family:var(--mo);font-size:11px">Sem NC\'s</div>';return;}el.innerHTML=ncs.map(n=>`<div style="background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:10px;margin-bottom:7px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font-size:12px;font-weight:700;font-family:var(--mo);color:var(--ok)">${n.id}</div><div style="text-align:right"><div style="font-size:13px;font-weight:800;color:var(--ok);font-family:var(--mo)">${fm(n.value)} ${n.currency==='USD'?'$':'€'}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--mo)">${n.orIds.length} OR's</div></div></div><div style="display:flex;flex-wrap:wrap;gap:3px">${n.orIds.map(id=>{const c=all.find(x=>x.id===id);return`<span style="font-size:10px;font-family:var(--mo);background:rgba(22,163,74,.1);color:var(--ok);border:1px solid rgba(22,163,74,.2);border-radius:3px;padding:1px 5px">${c?c.or:id}</span>`;}).join('')}</div>${n.path?`<div style="margin-top:5px;font-size:10px;font-family:var(--mo);color:var(--tx3)">🗄 ${n.path}</div>`:''}<div style="margin-top:7px;border-top:1px solid var(--bd);padding-top:7px;display:flex;justify-content:space-between;align-items:center">${n.received?`<div style="font-size:11px;font-family:var(--mo)"><span style="color:var(--ok)">✓ Recebida: ${fm(n.received.amount)} ${n.currency==='USD'?'$':'€'}</span> <span style="color:${n.received.amount>=n.value?'var(--ok)':'var(--err)'}">Dev: ${fm(n.received.amount-n.value)} ${n.currency==='USD'?'$':'€'}</span></div><div style="font-size:10px;color:var(--tx3);font-family:var(--mo)">${fd(n.received.date)}</div>`:`<button class="btn bsm bg" onclick="event.stopPropagation();ncReceive('${n.id}')">✓ Marcar Recebida</button><span style="font-size:10px;color:var(--tx3);font-family:var(--mo)">Pendente</span>`}</div></div>`).join('');}
+let ftSel=[];let ftVals={};
+function renderFTorl(){const dealer=document.getElementById('ft-dl').value;if(!dealer){document.getElementById('ft-orl').innerHTML='<div style="text-align:center;padding:14px;color:var(--tx3);font-family:var(--mo);font-size:11px">Selecione dealer</div>';return;}const billed=LFT().flatMap(f=>f.orIds);const cl=LC().filter(c=>c.dealer===dealer&&c.status==='credited'&&!billed.includes(c.id));const el=document.getElementById('ft-orl');if(!cl.length){el.innerHTML='<div style="text-align:center;padding:14px;color:var(--tx3);font-family:var(--mo);font-size:11px">Sem OR\'s creditadas por faturar</div>';return;}el.innerHTML=cl.map(c=>{if(ftVals[c.id]===undefined)ftVals[c.id]=creditedValue(c);return `<div class="coi ${ftSel.includes(c.id)?'sel':''}" onclick="togFT('${c.id}',this)"><input type="checkbox" ${ftSel.includes(c.id)?'checked':''} onclick="event.stopPropagation();togFT('${c.id}',this.closest('.coi'))"><div style="flex:1"><div class="ori-id">${c.or} <span class="chip ${BRANDS[c.brand]||'generic'}" style="font-size:9px">${c.brand}</span></div><div class="ori-mt">NC: ${c.ncBrand||'—'} · ${c.laborHours}h · creditado ${fm(creditedValue(c))} €</div></div><div class="ori-vl"><input type="number" step="0.01" min="0" value="${ftVals[c.id].toFixed(2)}" onclick="event.stopPropagation()" oninput="onFTVal('${c.id}',this.value)" style="width:88px;text-align:right"> €</div></div>`;}).join('');updFTT();}
+function togFT(id,el){const i=ftSel.indexOf(id);if(i>=0){ftSel.splice(i,1);el.classList.remove('sel');el.querySelector('input[type=checkbox]').checked=false;}else{ftSel.push(id);el.classList.add('sel');el.querySelector('input[type=checkbox]').checked=true;}updFTT();}
+function onFTVal(id,val){ftVals[id]=parseFloat(val)||0;updFTT();}
+function updFTT(){const all=LC(),v=ftSel.reduce((s,id)=>{const c=all.find(x=>x.id===id);return s+(c?(ftVals[id]!==undefined?ftVals[id]:creditedValue(c)):0);},0);document.getElementById('ft-cnt').textContent=`${ftSel.length} OR's · ${fm(v)} €`;document.getElementById('ft-val').value=v.toFixed(2);}
+function submitFT(){const dealer=document.getElementById('ft-dl').value,num=document.getElementById('ft-num').value.trim();if(!dealer||!num){toast('Preencha dealer e nº fatura.','e');return;}if(!ftSel.length){toast('Selecione OR\'s.','e');return;}const all=LC();const ftDoc=AST.ft2[0];const orValues={};const v=ftSel.reduce((s,id)=>{const c=all.find(x=>x.id===id),val=c?(ftVals[id]!==undefined?ftVals[id]:creditedValue(c)):0;orValues[id]=val;return s+val;},0);const ft={id:num,dealer,value:v,orIds:[...ftSel],orValues,doc:ftDoc?ftDoc.name:'',path:ftDoc?`FT/${dealer}/${ftDoc.name}`:'',createdAt:new Date().toISOString()};ftSel.forEach(id=>{const i=all.findIndex(c=>c.id===id);if(i>=0){all[i].invoice=num;all[i].invoicedAmount=orValues[id];all[i].status='paid';all[i].history=all[i].history||[];all[i].history.push({state:'Paga',date:new Date().toISOString(),user:'Importador',note:`FT: ${num} · ${fm(orValues[id])} €`});}});SC(all);const fts=LFT();fts.unshift(ft);SFT(fts);ftSel=[];ftVals={};AST.ft2=[];document.getElementById('ft-num').value='';document.getElementById('fl-ft2').innerHTML='';renderFTorl();renderNCl();toast(`FT ${num} · ${ft.orIds.length} OR's faturadas — ${fm(v)} €`,'s');}
+function rdp(){const d=SESSION.dealer,list=LC().filter(c=>c.dealer===d);document.getElementById('dl-sub').textContent=`${d} · ${DEALERS[d].country} · ${list.length} claims`;const p=list.filter(c=>c.status==='pending').length,a=list.filter(c=>['approved','credited'].includes(c.status)).length,pd=list.filter(c=>c.status==='paid').length,r=list.filter(c=>c.status==='rejected').length;document.getElementById('dkpi2').innerHTML=`<div class="kp"><div class="kl">Claims</div><div class="kv">${list.length}</div></div><div class="kp kpp"><div class="kl">Pendentes</div><div class="kv">${p}</div></div><div class="kp kpa"><div class="kl">Aprovadas/NC</div><div class="kv">${a}</div></div><div class="kp kpd"><div class="kl">Pagas</div><div class="kv">${pd}</div></div>`;rtbl(list,'dtb2',false);}
+function om(id){const c=LC().find(x=>x.id===id);if(!c)return;const isImp=SESSION.role==='importer',�ate=getRate(c.brand,c.dealer),moc=moCost(c);document.getElementById('mtit').textContent=c.id;document.getElementById('msub').textContent=`${c.dealer} · ${c.country||''} · ${c.brand} · ${fd(c.submittedAt)}`;const atts=c.attachments||[];const attHtml=atts.length?`<div class="att-list">${atts.map(a=>`<div class="att-item"><span class="att-ico">${ficon(a.name)}</span><div class="att-info"><div class="att-name">${a.name}</div><div class="att-meta">${fsize(a.size||0)} · ${a.path||''}</div></div><span class="att-tag">${(a.slot||'doc').toUpperCase()}</span></div>`).join('')}</div>`:'<span style="color:var(--tx3);font-size:11px;font-family:var(--mo)">Sem anexos</span>';let codes='';if(c.profile==='psa')codes=`<div class="ds"><h3>Códigos PSA</h3><div class="dg"><div><div class="dl">DID</div><div class="dv">${c.did||'—'}</div></div><div><div class="dl">Allocation</div><div class="dv">${c.alloc||'—'}</div></div><div><div class="dl">Claim Type</div><div class="dv">${c.claimType||'—'}</div></div></div><div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><div><div class="dl">Fault</div><div class="dv">${(c.faultCodes||[]).map(f=>f.code).join(', ')||'—'}</div></div><div><div class="dl">Cause</div><div class="dv">${(c.causeCodes||[]).map(f=>f.code).join(', ')||'—'}</div></div><div><div class="dl">Labour</div><div class="dv">${(c.labourCodes||[]).map(f=>f.code).join(', ')||'—'}</div></div></div></div>`;else if(c.profile==='mahindra')codes=`<div class="ds"><h3>Códigos Mahindra</h3><div class="dg"><div><div class="dl">TAR No.</div><div class="dv">${c.tar||'—'}</div></div><div><div class="dl">Claim Type</div><div class="dv">${c.claimType||'—'}</div></div></div></div>`;else if(c.profile==='chinese')codes=`<div class="ds"><h3>Códigos (Marca Chinesa)</h3><div class="dg"><div><div class="dl">Ticket Suporte</div><div class="dv">${c.ctk||'—'}</div></div><div><div class="dl">Claim Type</div><div class="dv">${c.claimType||'—'}</div></div></div></div>`;else codes=`<div class="ds"><h3>Claim Type</h3><div class="dv">${c.claimType||'—'}</div></div>`;const partsHtml=(c.parts||[]).length?`<table class="ct" style="font-size:11px"><thead><tr><th>Causal</th><th>Part Code</th><th>Descrição</th><th>Qtd</th><th>Custo Unit.</th><th>Total</th></tr></thead><tbody>${c.parts.map(p=>`<tr><td>${p.causal?'<span style="color:var(--err)">● causal</span>':''}</td><td class="mn">${p.code}</td><td>${p.desc||'—'}</td><td class="mn">${p.qty}</td><td class="mn">${(p.unitCost||0).toFixed(2)} €</td><td class="mn">${((p.qty||0)*(p.unitCost||0)).toFixed(2)} €</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="5" style="text-align:right;font-weight:700;font-size:11px;padding:4px 6px">Total Peças:</td><td class="mn" style="font-weight:700;color:var(--ok)">${fm(c.partsTotal||(c.parts.reduce((s,p)=>s+(p.qty||0)*(p.unitCost||0),0)))  } €</td></tr></tfoot></table>`:'<span style="color:var(--tx3);font-size:11px;font-family:var(--mo)">Sem peças</span>';const subHtml=(c.sublet||[]).length?`<table class="ct" style="font-size:11px"><thead><tr><th>Descrição</th><th>USD</th></tr></thead><tbody>${c.sublet.map(s=>`<tr><td>${s.desc||'—'}</td><td class="mn">${s.usd.toFixed(2)} USD</td></tr>`).join('')}</tbody></table>`:'<span style="color:var(--tx3);font-size:11px;font-family:var(--mo)">Sem sublet</span>';const actions=isImp?`<div class="ncpan"><h3>${T('sec_validation')}</h3><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><div class="fd"><label>${T('lbl_moaceite')}</label><input type="number" step="0.01" min="0" id="inp-amo" value="${c.acceptedMO!=null?c.acceptedMO:moCost(c).toFixed(2)}" oninput="prevAcc('${c.id}')"></div><div class="fd"><label>${T('lbl_mataceite')}</label><input type="number" step="0.01" min="0" id="inp-amat" value="${c.acceptedMaterials!=null?c.acceptedMaterials:(c.partsTotal||0).toFixed(2)}" oninput="prevAcc('${c.id}')"></div><div class="fd"><label>${T('lbl_subaceite')}</label><input type="number" step="0.01" min="0" id="inp-asub" value="${c.acceptedSublet!=null?c.acceptedSublet:acceptedSubletVal(c).toFixed(2)}" oninput="prevAcc('${c.id}')"></div></div><div id="acc-preview" class="ori-mt" style="margin-top:6px"></div></div><div class="ncpan"><h3>${T('sec_importer')}</h3><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><div class="fd"><label>${T('lbl_ncbrand')}</label><input type="text" id="inp-nc" value="${c.ncBrand||''}" placeholder="NC-XXXX"></div><div class="fd"><label>${T('lbl_ftdealer')}</label><input type="text" id="inp-inv" value="${c.invoice||''}" placeholder="FT-XXXX"></div><div class="fd"><label>${T('lbl_note')}</label><input type="text" id="inp-note" placeholder="Observação..."></div></div>${(c.messages?.length||c.returnReplies?.length)?`<div style="border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-bottom:8px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ac);margin-bottom:6px">💬 Histórico de Mensagens</div>${(c.messages||(c.returnReplies||[]).map(r=>({from:'dealer',text:r.text,date:r.date,user:r.user}))).map(m=>`<div style="margin-bottom:6px;padding:6px 8px;border-radius:6px;background:${m.from==='importer'?'rgba(59,130,246,.08)':'rgba(22,163,74,.08)'}"><div style="font-size:10px;color:var(--tx3);margin-bottom:2px">${m.from==='importer'?'🏬':'🏪'} ${m.user} · ${fd(m.date)}</div><div style="font-size:12px;color:var(--tx)">${m.text}</div></div>`).join('')}</div>`:''}<div class="fd" style="margin-top:8px"><label>${T('lbl_retmsg')}</label><textarea id="inp-ret-msg" rows="2" style="width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:8px;font-size:12px;color:var(--tx);resize:vertical;font-family:var(--mo)" placeholder="Descreva o que falta, o que está errado..."></textarea></div><div class="arow"><button class="btn bsm" style="background:rgba(59,130,246,.13);color:var(--ac);border:1px solid var(--ac)" onclick="us('${c.id}','analysis')">${T('btn_analysis')}</button><button class="btn bsm bs" onclick="us('${c.id}','approved')">${T('btn_approve')}</button><button class="btn bsm bd_" onclick="us('${c.id}','rejected')">${T('btn_reject')}</button><button class="btn bsm" style="background:rgba(22,163,74,.13);color:#15803d;border:1px solid var(--ok)" onclick="us('${c.id}','credited')">${T('btn_credit')}</button><button class="btn bsm" style="background:rgba(139,92,246,.13);color:#7c3aed;border:1px solid #8b5cf6" onclick="us('${c.id}','paid')">${T('btn_paid')}</button><button class="btn bsm bg" onclick="us('${c.id}','archived')">${T('btn_archive')}</button><button class="btn bsm" style="background:rgba(245,158,11,.13);color:#d97706;border:1px solid #f59e0b" onclick="us('${c.id}','returned')">${T('btn_return')}</button></div></div>`:(c.status==='returned'?`<div class="ncpan" style="border-color:#f59e0b;background:rgba(245,158,11,.04)"><h3>↩ ${T('sec_returned_dlr')} — ${T('btn_reply')}</h3><div style="background:rgba(245,158,11,.08);border:1px solid #f59e0b;border-radius:8px;padding:10px;margin-bottom:10px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#d97706;margin-bottom:4px">${T('sec_returned_dlr')}</div><div style="font-size:12px;color:var(--tx)">${c.returnMessage||'Sem mensagem'}</div></div><div class="fd"><label>Resposta / Comentários</label><textarea id="inp-dreply" rows="3" style="width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:8px;font-size:12px;color:var(--tx);resize:vertical;font-family:var(--mo)" placeholder="Descreva o que foi feito, informações adicionais..."></textarea></div><div class="arow"><button class="btn bsm bs" onclick="dealerReply('${c.id}')">${T('btn_reply')}</button></div></div>`:'');document.getElementById('mbody').innerHTML=`<div class="ds"><h3>${T('sec_vehicle')}</h3><div class="dg"><div><div class="dl">VIN</div><div class="dv">${c.vin||'—'}</div></div><div><div class="dl">Model</div><div class="dv">${c.model||'—'}</div></div><div><div class="dl">Sales Date</div><div class="dv">${c.salesDate||'—'}</div></div><div><div class="dl">Usage</div><div class="dv">${c.usage||'—'}</div></div><div><div class="dl">Attributes</div><div class="dv">${c.attr||'—'}</div></div><div><div class="dl">Customer</div><div class="dv">${c.custName||'—'} ${c.custType?'('+c.custType+')':''}</div></div></div></div><div class="ds"><h3>${T('sec_repair')}</h3><div class="dg"><div><div class="dl">RO Nº</div><div class="dv">${c.or||'—'}</div></div><div><div class="dl">Claim Nº</div><div class="dv">${c.claimNo||'—'}</div></div><div><div class="dl">RO Open</div><div class="dv">${c.roOpen||'—'}</div></div><div><div class="dl">RO Conclusion</div><div class="dv">${c.roConc||'—'}</div></div><div><div class="dl">Mileage</div><div class="dv">${Number(c.km||0).toLocaleString('pt-PT')} km</div></div></div><div style="margin-top:8px;font-size:11px;color:var(--tx2);font-family:var(--mo);line-height:1.7"><div><strong style="color:var(--tx3)">COMPLAINT:</strong> ${c.complaint||'—'}</div><div><strong style="color:var(--tx3)">DIAGNOSIS:</strong> ${c.diagnosis||'—'}</div><div><strong style="color:var(--tx3)">SOLUTION:</strong> ${c.solution||'—'}</div></div></div>${codes}<div class="ds"><h3>${T('sec_parts')}</h3>${partsHtml}</div><div class="ds"><h3>${T('sec_labour')}</h3><div class="dg" style="margin-bottom:10px"><div><div class="dl">Horas MO</div><div class="dv" style="color:var(--ac)">${c.laborHours||0} h${c.labourLines&&c.labourLines.length?'<span style="font-size:10px;color:var(--tx3);margin-left:5px">('+c.labourLines.map(function(l){return(l.desc||'op')+': '+l.hours+'h';}).join(', ')+')</span>':''}</div></div><div><div class="dl">Taxa ${c.currency==='USD'?'$':'€'}/h</div><div class="dv">${rate>0?fm(rate)+' €':'<span style="color:var(--warn)">não definida</span>'}</div></div><div><div class="dl">Custo MO (s/IVA)</div><div class="dv amt">${rate>0?fm(moc)+(c.currency==='USD'?' $':' €'):'a definir'}</div></div></div>${subHtml}${(c.acceptedMO!=null||c.acceptedMaterials!=null||c.acceptedSublet!=null||c.creditedAmount!=null)?`<div class="dg" style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--bd)"><div><div class="dl">MO Aceite (€)</div><div class="dv">${fm(acceptedMOVal(c))} €</div></div><div><div class="dl">Materiais Aceites</div><div class="dv">${fm(acceptedMaterialsVal(c))} €</div></div><div><div class="dl">Sublet Aceite</div><div class="dv">${fm(acceptedSubletVal(c))} €</div></div><div><div class="dl">Valor a Creditar (NC)</div><div class="dv amt" style="color:var(--ok)">${fm(creditedValue(c))} €</div></div></div>`:''}</div><div class="ds"><h3>${T('sec_attachments')}</h3>${attHtml}</div><div class="ds"><h3>${T('sec_status')}</h3><div class="dg"><div><div class="dl">NC Marca</div><div class="dv">${c.ncBrand?`<span style="color:var(--ok)">${c.ncBrand}</span>`:'<span style="color:var(--tx3)">—</span>'}</div></div><div><div class="dl">FT Dealer</div><div class="dv">${c.invoice?`<span style="color:#7c3aed">${c.invoice}</span>`:'<span style="color:var(--tx3)">—</span>'}</div></div><div><div class="dl">Estado</div><div class="dv">${bdg(c.status)}</div></div></div></div><div class="ds"><h3>${T('sec_timeline')}</h3><div class="tl">${(c.history||[]).map((h,i,a)=>`<div class="tli"><div class="tll"><div class="tld ${i===a.length-1?'on':''}"></div>${i<a.length-1?'<div class="tlc_"></div>':''}</div><div class="tlct"><div class="tls">${h.state}</div><div class="tlm">${fd(h.date)} · ${h.user}</div>${h.note?`<div class="tln">${h.note}</div>`:''}</div></div>`).join('')}</div></div>${actions}`;document.getElementById('mol').classList.add('on');if(isImp)setTimeout(()=>prevAcc(id),0);}
+function us(id,st){const all=LC(),idx=all.findIndex(c=>c.id===id);if(idx<0)return;const nc=document.getElementById('inp-nc')?.value||'',inv=document.getElementById('inp-inv')?.value||'',note=document.getElementById('inp-note')?.value||'',amo=document.getElementById('inp-amo')?.value,am=document.getElementById('inp-amat')?.value,asu=document.getElementById('inp-asub')?.value,retMsg=document.getElementById('inp-ret-msg')?.value||'';all[idx].status=st;if(nc)all[idx].ncBrand=nc;if(inv)all[idx].invoice=inv;if(amo!==undefined&&amo!=='')all[idx].acceptedMO=parseFloat(amo)||0;if(am!==undefined&&am!=='')all[idx].acceptedMaterials=parseFloat(am)||0;if(asu!==undefined&&asu!=='')all[idx].acceptedSublet=parseFloat(asu)||0;if(st==='credited'){all[idx].creditedAmount=acceptedTotal(all[idx]);if(!all[idx].currency)all[idx].currency=getCurr(all[idx].profile||'generic');}if(st==='returned'&&retMsg){all[idx].returnMessage=retMsg;all[idx].messages=all[idx].messages||[];all[idx].messages.push({from:'importer',text:retMsg,date:new Date().toISOString(),user:SESSION.userName||'Importador'});}const lbl={analysis:'Em Análise',approved:'Aprovada',credited:'Creditada NC',rejected:'Rejeitada',paid:'Paga',archived:'Arquivada',returned:'Retornado'};all[idx].history=all[idx].history||[];all[idx].history.push({state:lbl[st]||st,date:new Date().toISOString(),user:'Importador',note:note||(nc?'NC: '+nc:'')+(inv?' FT: '+inv:'')+(st==='credited'?' · Aceite: '+fm(acceptedTotal(all[idx]))+' €':'')+(st==='returned'&&retMsg?' · Msg: '+retMsg.slice(0,60):'')});SC(all);cm();rdb();const _dlr=all[idx]?.dealer;if(_dlr&&st==='returned')addNotif('⚠ Claim '+id+' devolvida pelo importador',id,'dealer',_dlr);else if(_dlr&&['approved','credited','rejected'].includes(st))addNotif('Claim '+id+' → '+(lbl[st]||st),id,'dealer',_dlr);updateBell();toast(id+' → '+lbl[st],'s');}
+function cm(){document.getElementById('mol').classList.remove('on');}
+function dealerReply(id){const all=LC(),idx=all.findIndex(c=>c.id===id);if(idx<0)return;const reply=document.getElementById('inp-dreply')?.value?.trim()||'';if(!reply){toast('Escreva uma resposta','e');return;}all[idx].status='analysis';all[idx].returnReplies=all[idx].returnReplies||[];all[idx].returnReplies.push({text:reply,date:new Date().toISOString(),user:SESSION.dealer||'Dealer'});all[idx].messages=all[idx].messages||[];all[idx].messages.push({from:'dealer',text:reply,date:new Date().toISOString(),user:SESSION.userName||SESSION.dealer||'Dealer'});all[idx].history=all[idx].history||[];all[idx].history.push({state:'Respondido',date:new Date().toISOString(),user:SESSION.dealer||'Dealer',note:reply.slice(0,80)+(reply.length>80?'…':'')});SC(all);cm();rdp();addNotif('↩ Dealer '+SESSION.dealer+' respondeu à claim '+id,id,'importer',null);updateBell();toast(id+' → Resposta enviada','s');}
+function bdg(s){const m={pending:['b-p',T('st_pending')],analysis:['b-a',T('st_analysis')],approved:['b-ok',T('st_approved')],credited:['b-cr',T('st_credited')],rejected:['b-r',T('st_rejected')],paid:['b-pd',T('st_paid')],archived:['b-ar',T('st_archived')],returned:['b-rt',T('st_returned')]};const[cls,lbl]=m[s]||['b-ar',s];return`<span class="badge ${cls}">${lbl}</span>`;}
+function fd(iso){try{return new Date(iso).toLocaleString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}catch{return iso||'—'}}
+function fm(v){return parseFloat(v||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function toast(msg,type='s'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' on';setTimeout(()=>t.classList.remove('on'),4000);}
+function seed(){if(LC().length)return;const mk=(o)=>{const id=GID(o.brand);const base=new Date(Date.now()-o.daysAgo*86400000);const sm={pending:['Submetida'],approved:['Submetida','Em Análise','Aprovada'],credited:['Submetida','Em Análise','Aprovada','Creditada NC'],paid:['Submetida','Em Análise','Aprovada','Creditada NC','Paga'],rejected:['Submetida','Em Análise','Rejeitada']}[o.status]||['Submetida'];return{id,brand:o.brand,profile:BRANDS[o.brand],dealer:o.dealer,country:DEALERS[o.dealer].country,vin:o.vin,model:o.model,salesDate:o.salesDate,salesKm:0,usage:'Operation',attr:'Family car',custType:'Individual customers',custName:o.cust,or:o.or,claimNo:o.cln,roOpen:o.roo,roConc:o.roc,km:o.km,claimType:o.ct,complaint:o.comp,diagnosis:o.diag,solution:o.sol,did:o.did||'',alloc:o.alloc||'',faultCodes:o.fc||[],causeCodes:[],labourCodes:o.lc||[],tar:o.tar||'',ctk:o.ctk||'',parts:o.parts||[],laborHours:o.lh,sublet:o.sublet||[],attachments:o.att||[],status:o.status,ncBrand:o.nc||'',invoice:o.inv||'',submittedAt:base.toISOString(),history:sm.map((state,j)=>({state,date:new Date(base.getTime()+j*2*86400000).toISOString(),user:j===0?o.dealer:'Importador',note:j===0?`${(o.att||[]).length} ficheiro(s) · ${o.lh}h`:state==='Creditada NC'&&o.nc?'NC: '+o.nc:state==='Paga'&&o.inv?'FT: '+o.inv:''}))};};const seeds=[mk({brand:'Peugeot',dealer:'The Motorcenter East Africa',vin:'VF3CCHMZ6LS012345',model:'Peugeot 3008',salesDate:'2021-03-10',cust:'John M.',or:'OR-2024-00123',cln:'CL-001',roo:'2024-11-15',roc:'2024-11-16',km:42500,ct:'000 – Contractual Warranty',comp:'Luz de avaria, modo degradado',diag:'Sensor MAP fora de gama (P0105)',sol:'Substituição sensor MAP',did:'DID-4521',alloc:'AL-09',fc:[{code:'P0105',desc:'MAP'}],lc:[{code:'LB-4521-B',desc:''}],parts:[{causal:true,code:'9678212480',desc:'Sensor MAP',qty:1}],lh:1.5,sublet:[{desc:'Limpeza condutas',usd:15}],status:'credited',nc:'NC-PSA-0089',daysAgo:30,att:[{slot:'oldpart',name:'old_map.jpg',size:1200000,path:'x/oldpart/old_map.jpg'}]}),mk({brand:'Mahindra',dealer:'Caetano Formula Senegal',vin:'MA1XXXXXX00000421',model:'Mahindra XUV700',salesDate:'2023-01-20',cust:'Frota XPTO',or:'OR-2024-00198',cln:'CL-002',roo:'2024-11-20',roc:'2024-11-21',km:18200,ct:'Normal Warranty Claim',comp:'Ruído na suspensão',diag:'Folga no braço inferior (TAR Mtis)',sol:'Substituição braço inferior',tar:'TAR-2024-7781',parts:[{causal:true,code:'MH-ARM-001',desc:'Braço inferior esq.',qty:1}],lh:2.0,status:'pending',daysAgo:22,att:[{slot:'oldpart',name:'arm.jpg',size:1500000,path:'x/oldpart/arm.jpg'}]}),mk({brand:'BAIC',dealer:'Caetano Formula Senegal',vin:'LSVNX4168ME000777',model:'BAIC BJ40',salesDate:'2023-05-01',cust:'A. Diop',or:'OR-2024-00205',cln:'CL-003',roo:'2024-11-25',roc:'2024-11-26',km:9500,ct:'Normal Warranty',comp:'Erro multimédia',diag:'Unidade multimédia sem resposta (ticket suporte)',sol:'Substituição unidade multimédia',ctk:'BAIC-TS-1192',parts:[{causal:true,code:'BA-MMI-22',desc:'Unidade multimédia',qty:1}],lh:1.0,status:'approved',daysAgo:14}),mk({brand:'Renault',dealer:'Caetano Formula Senegal',vin:'VF1RFB00000099182',model:'Renault Clio',salesDate:'2022-06-15',cust:'M. Sow',or:'OR-2024-00210',cln:'CL-004',roo:'2024-11-22',roc:'2024-11-24',km:31000,ct:'Normal Warranty',comp:'Embraiagem patina',diag:'Disco desgastado',sol:'Substituição kit embraiagem',parts:[{causal:true,code:'302057222R',desc:'Kit embraiagem',qty:1}],lh:4.0,sublet:[{desc:'Óleo caixa',usd:30}],status:'approved',daysAgo:10}),mk({brand:'Hyundai',dealer:'Salvador Caetano Kenya Limited',vin:'KMHXX00XXXX012345',model:'Hyundai Tucson',salesDate:'2023-02-10',cust:'Nairobi Corp',or:'OR-2024-00250',cln:'CL-005',roo:'2024-12-01',roc:'2024-12-02',km:21000,ct:'Normal Warranty',comp:'AC não arrefece',diag:'Compressor AC avariado',sol:'Substituição compressor',parts:[{causal:true,code:'97701-XX',desc:'Compressor AC',qty:1}],lh:3.0,status:'paid',nc:'NC-HYU-0012',inv:'FT-KEN-0033',daysAgo:35}),mk({brand:'Fiat',dealer:'3S MOTORS',vin:'ZFA31200000XXXXX1',model:'Fiat Tipo',salesDate:'2021-11-30',cust:'P. Mbarga',or:'OR-2024-00267',cln:'CL-006',roo:'2024-12-05',roc:'2024-12-05',km:52300,ct:'Goodwill',comp:'Falha na partida',diag:'Motor de arranque avariado',sol:'Substituição motor arranque',parts:[{causal:true,code:'5802L8',desc:'Motor arranque',qty:1}],lh:1.0,status:'rejected',daysAgo:8})];SC(seeds);if(!LNC().length){const all=LC();const c=all.find(x=>x.ncBrand==='NC-PSA-0089');SNC([{id:'NC-PSA-0089',value:c?moCost(c):0,orIds:[c?.id].filter(Boolean),doc:'NC-PSA-0089.pdf',path:'NC/NC-PSA-0089.pdf',createdAt:new Date(Date.now()-18*86400000).toISOString()}]);const c2=all.find(x=>x.invoice==='FT-KEN-0033');SFT([{id:'FT-KEN-0033',dealer:'Salvador Caetano Kenya Limited',value:c2?moCost(c2):0,orIds:[c2?.id].filter(Boolean),doc:'FT-KEN-0033.pdf',path:'FT/Salvador Caetano Kenya Limited/FT-KEN-0033.pdf',createdAt:new Date(Date.now()-5*86400000).toISOString()}]);}}
+function seedRates(){if(LRT().length)return;SRT([{brand:'Peugeot',dealer:'The Motorcenter East Africa',rate:42},{brand:'Mahindra',dealer:'Caetano Formula Senegal',rate:38},{brand:'BAIC',dealer:'Caetano Formula Senegal',rate:36},{brand:'Renault',dealer:'Caetano Formula Senegal',rate:40},{brand:'Hyundai',dealer:'Salvador Caetano Kenya Limited',rate:44},{brand:'Fiat',dealer:'3S MOTORS',rate:35}]);}
+document.getElementById('li-dealer').innerHTML=ALL_DEALERS.map(d=>`<option ${d==='Caetano Formula Senegal'?'selected':''}>${d}</option>`).join('');
+document.getElementById('li-user').value='teste';
+seedRates();seed();
+
+// ── CURRENCY HELPERS ──
+function getCurr(prof){return prof==='psa'?'EUR':'USD';}
+function getCurrSymbol(prof){return prof==='psa'?'€':'$';}
+function updateFormCurrency(prof){
+  var sym=getCurrSymbol(prof);
+  document.querySelectorAll('.curr-sym').forEach(function(el){el.textContent=sym;});
+}
+
+// ── MULTIPLE LABOUR LINES ──
+function addLr(){
+  var tr=document.createElement('tr');
+  tr.className='lr';
+  tr.innerHTML='<td><input type="text" placeholder="Ex: Substituição de peça causal"></td><td><input type="number" placeholder="0.0" step="0.1" min="0" oninput="cgLabour()" style="width:78px"></td><td><button class="btn bg bsm" onclick="rmlr(this)">✕</button></td>';
+  document.getElementById('lb').appendChild(tr);
+  cgLabour();
+}
+function rmlr(b){b.closest('tr').remove();cgLabour();}
+function cgLabour(){
+  var t=0;
+  document.querySelectorAll('.lr').forEach(function(r){t+=parseFloat(r.cells[1].querySelector('input').value)||0;});
+  var lh=document.getElementById('f-lh');if(lh)lh.value=t.toFixed(1);
+  var lht=document.getElementById('f-lhtot');if(lht)lht.value=t.toFixed(1);
+}
+function getLabour(){
+  return Array.from(document.querySelectorAll('.lr')).map(function(r){return{
+    desc:r.cells[0].querySelector('input').value||'',
+    hours:parseFloat(r.cells[1].querySelector('input').value)||0
+  };}).filter(function(l){return l.hours>0||l.desc;});
+}
+
+// ── WARRANTY / DOCREQ / NOTIF storage ──
+const WARKEY='wcpf_warranty',DOCREQKEY='wcpf_docreq',NOTIFKEY='wcpf_notif';
+function LWarranty(){try{return JSON.parse(localStorage.getItem(WARKEY))||{};}catch(e){return{};}}
+function SWarranty(d){localStorage.setItem(WARKEY,JSON.stringify(d));}
+function LDocReq(){try{return JSON.parse(localStorage.getItem(DOCREQKEY))||{};}catch(e){return{};}}
+function SDocReq(d){localStorage.setItem(DOCREQKEY,JSON.stringify(d));}
+function LNotif(){try{return JSON.parse(localStorage.getItem(NOTIFKEY))||[];}catch(e){return{};}}
+function SNotif(d){localStorage.setItem(NOTIFKEY,JSON.stringify(d));}
+
+// ── WARRANTY ADMIN ──
+const WAR_PROFILES=['psa','mahindra','chinese','generic'];
+function renderWarrantyTable(){
+  const w=LWarranty(),tb=document.getElementById('war-tb');
+  if(!tb)return;
+  const entries=Object.entries(w);
+  if(!entries.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;padding:12px;color:var(--tx3);font-family:var(--mo);font-size:11px">Sem coberturas configuradas</td></tr>';return;}
+  tb.innerHTML=entries.map(([brand,v])=>`<tr><td style="font-weight:600">${brand} <span class="chip ${BRANDS[brand]||'generic'}" style="font-size:9px">${BRANDS[brand]||'?'}</span></td><td class="mn">${v.years} anos</td><td class="mn">${(v.km||0).toLocaleString('pt-PT')} km</td><td><button class="btn bg bsm" onclick="delWarrantyEntry('${brand}')">✕</button></td></tr>`).join('');
+}
+function renderWarrantyCfg(){
+  const sel=document.getElementById('war-br');
+  if(sel){sel.innerHTML=Object.keys(BRANDS).map(b=>`<option value="${b}">${b}</option>`).join('');}
+  renderWarrantyTable();
+}
+function saveWarrantyEntry(){
+  const brand=document.getElementById('war-br')?.value;
+  const yr=parseFloat(document.getElementById('war-yr')?.value)||0;
+  const km=parseFloat(document.getElementById('war-km')?.value)||0;
+  if(!brand){toast('Selecione uma marca.','e');return;}
+  if(!yr&&!km){toast('Insira anos ou km.','e');return;}
+  const d=LWarranty();d[brand]={years:yr,km};SWarranty(d);
+  renderWarrantyTable();
+  document.getElementById('war-yr').value='';
+  document.getElementById('war-km').value='';
+  toast('Garantia '+brand+': '+yr+'a / '+(km||0).toLocaleString('pt-PT')+' km','s');
+}
+function delWarrantyEntry(brand){
+  const d=LWarranty();delete d[brand];SWarranty(d);renderWarrantyTable();
+  toast('Removida: '+brand,'s');
+}
+function saveWarranty(){}
+
+// ── DOC CHECKLIST ADMIN ──
+const DOC_SLOTS=['oldpart','newpart','odo','vinphoto','front','installed','docs'];
+const DOC_LABELS={oldpart:'Peça substituída',newpart:'Peça nova',odo:'Odómetro',vinphoto:'Foto VIN',front:'Exterior frente',installed:'Peça instalada',docs:'Doc. suporte'};
+function renderDocReq(){
+  const d=LDocReq(),el=document.getElementById('adm-docreq');
+  if(!el)return;
+  el.innerHTML<`<div style="overflow-x:auto"><table class="ct" style="font-size:11px"><thead><tr><th>Perfil</th>${DOC_SLOTS.map(s=>`<th style="font-size:10px">${DOC_LABELS[s]}</th>`).join('')}</tr></thead><tbody>${WAR_PROFILES.map(b=>`<tr><td style="font-weight:700">${b}</td>${DOC_SLOTS.map(s=>`<td style="text-align:center"><input type="checkbox" id="dr-${b}-${s}" style="width:auto" ${((d[b]||[]).includes(s)?'checked':'')}></td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function saveDocReq(){
+  const d={};
+  WAR_PROFILES.forEach(b=>{
+    d[b]=DOC_SLOTS.filter(s=>{const el=document.getElementById(`dr-${b}-${s}`);return el&&el.checked;});
+  });
+  SDocReq(d);
+  toast('Requisitos de documentos guardados','s');
+}
+// Check required docs before submit (called from submitClaim wrapper)
+function checkDocReq(prof){
+  const req=(LDocReq()[prof])||[];
+  if(!req.length)return true;
+  const missing=req.filter(slot=>!AST[slot]||!AST[slot].length);
+  if(missing.length){toast('⚠ Documentos em falta: '+missing.map(s=>DOC_LABELS[s]||s).join(', '),'w');return false;}
+  return true;
+}
+
+// ── NOTIFICATIONS ──
+function addNotif(msg,claimId,toRole,toDealer){
+  const n=LNotif();
+  n.unshift({id:Date.now().toString(),msg,claimId,toRole,toDealer,date:new Date().toISOString(),read:false});
+  if(n.length>60)n.length=60;
+  SNotif(n);
+  updateBell();
+}
+function updateBell(){
+  if(!SESSION)return;
+  const all=LNotif().filter(x=>!x.read&&x.toRole===SESSION.role&&(SESSION.role==='importer'||x.toDealer===SESSION.dealer));
+  const cnt=document.getElementById('bell-count'),btn=document.getElementById('bell-btn');
+  if(!cnt||!btn)return;
+  if(all.length){cnt.textContent=all.length;cnt.style.display='flex';btn.style.color='var(--ac)';}
+  else{cnt.style.display='none';btn.style.color='';}
+}
+function toggleNotifPanel(){
+  const p=document.getElementById('notif-panel');
+  if(!p)return;
+  if(p.style.display==='none'||!p.style.display){renderNotifPanel();p.style.display='block';}
+  else p.style.display='none';
+}
+// close notif panel when clicking outside
+document.addEventListener('click',e=>{const w=document.getElementById('bell-wrap');if(w&&!w.contains(e.target)){const p=document.getElementById('notif-panel');if(p)p.style.display='none';}});
+function renderNotifPanel(){
+  const p=document.getElementById('notif-panel');
+  if(!SESSION)return;
+  const all=LNotif().filter(x=>x.toRole===SESSION.role&&(SESSION.role==='importer'||x.toDealer===SESSION.dealer));
+  // mark all as read
+  const stored=LNotif();
+  stored.forEach(x=>{if(x.toRole===SESSION.role&&(SESSION.role==='importer'||x.toDealer===SESSION.dealer))x.read=true;});
+  SNotif(stored);
+  updateBell();
+  if(!all.length){p.innerHTML='<div style="padding:16px;text-align:center;font-size:12px;color:var(--tx3);font-family:var(--mo)">Sem notificações</div>';return;}
+  p.innerHTML<`<div style="padding:8px 10px;border-bottom:1px solid var(--bd);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);font-family:var(--mo)">Notificações</div>`+
+  all.slice(0,15).map(n=>`<div onclick="if('${n.claimId}'){om('${n.claimId}');document.getElementById('notif-panel').style.display='none';}" style="padding:8px 10px;border-bottom:1px solid var(--bd);cursor:pointer;background:${n.read?'':'rgba(59,130,246,.04)'}" onmouseover="this.style.background='var(--sf2)'" onmouseout="this.style.background='${n.read?'':'rgba(59,130,246,.04)'}'"><div style="font-size:12px;color:var(--tx)">${n.msg}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--mo);margin-top:2px">${fd(n.date)}</div></div>`).join('');
+}
+
+// ── NC PAYMENT TRACKING ──
+function ncReceive(ncId){
+  const amount=prompt('Valor recebido (€):','');
+  if(amount===null||amount==='')return;
+  const ncs=LNC(),idx=ncs.findIndex(n=>n.id===ncId);
+  if(idx<0)return;
+  ncs[idx].received={date:new Date().toISOString(),amount:parseFloat(amount)||0};
+  SNC(ncs);
+  renderNCl();
+  toast('NC '+ncId+' marcada como recebida','s');
+}
+
+// ── BULK ACTIONS ──
+let bulkSel=[];
+function toggleBulk(id){
+  const i=bulkSel.indexOf(id);
+  if(i>=0)bulkSel.splice(i,1);else bulkSel.push(id);
+  updateBulkBar();
+}
+function toggleBulkAll(chk){
+  bulkSel=chk.checked?Array.from(document.querySelectorAll('.bulk-chk')).map(x=>x.dataset.id):[];
+  document.querySelectorAll('.bulk-chk').forEach(x=>x.checked=chk.checked);
+  updateBulkBar();
+}
+function updateBulkBar(){
+  const bar=document.getElementById('bulk-bar');
+  if(!bar)return;
+  if(bulkSel.length){bar.style.display='flex';const cnt=document.getElementById('bulk-cnt');if(cnt)cnt.textContent=bulkSel.length+' selecionadas';}
+  else bar.style.display='none';
+  document.querySelectorAll('.bulk-chk').forEach(x=>x.checked=bulkSel.includes(x.dataset.id));
+}
+function clearBulk(){
+  bulkSel=[];
+  document.querySelectorAll('.bulk-chk').forEach(x=>x.checked=false);
+  const ca=document.getElementById('chk-all');if(ca)ca.checked=false;
+  updateBulkBar();
+}
+function bulkAction(st){
+  if(!bulkSel.length)return;
+  const n=bulkSel.length;
+  const all=LC();
+  const lbl={analysis:'Em Análise',approved:'Aprovada',rejected:'Rejeitada',archived:'Arquivada'};
+  bulkSel.forEach(id=>{
+    const idx=all.findIndex(x=>x.id===id);
+    if(idx>=0){
+      all[idx].status=st;
+      all[idx].history=all[idx].history||[];
+      all[idx].history.push({state:lbl[st]||st,date:new Date().toISOString(),user:SESSION.userName||'Importador',note:'Ação em massa'});
+    }
+  });
+  SC(all);
+  clearBulk();
+  rdb();
+  toast(n+' claims → '+(lbl[st]||st),'s');
+}
+
+// ── EXPORT CSV ──
+function exportCSV(){
+  const all=LC();
+  const hdrs=['ID','Dealer','País','Marca','VIN','OR','Status','Submetido','MO Aceite (€)','Materiais Aceite (€)','Sublet Aceite (€)','Creditado (€)','Fatura','Total Peças (€)','Fora Garantia'];
+  const rows=all.map(x=>[
+    x.id,x.dealer,x.country||'',x.brand||'',x.vin||'',x.or||'',x.status||'',
+    x.submittedAt?x.submittedAt.slice(0,10):'',
+    acceptedMOVal(x).toFixed(2),
+    acceptedMaterialsVal(x).toFixed(2),
+    acceptedSubletVal(x).toFixed(2),
+    (x.creditedAmount||0).toFixed(2),
+    x.invoice||'',
+    (x.partsTotal||0).toFixed(2),
+    x.warrantyFlag?'SIM':''
+  ]);
+  const csv=[hdrs,...rows].map(r=>r.map(v=>'"'+(String(v||'').replace(/"/g,'""'))+'"').join(',')).join('\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='warranty_claims_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  toast('CSV exportado ('+all.length+' claims)','s');
+}
+
+
+</script>
+</body>
+</html>

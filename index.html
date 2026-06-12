@@ -446,6 +446,11 @@ table.ct td.mn{font-family:var(--mo);font-size:11px}
     </div>
   </div>
   <div class="adm-sec">
+    <h2>💱 Brand Currencies</h2>
+    <p style="font-size:11px;color:var(--tx3);margin-bottom:12px">Currency used for parts, labour and all values of each brand. Applies to NEW claims (existing claims keep the currency they were submitted with). Default: PSA = EUR, all others = USD.</p>
+    <div id="adm-bcur"></div>
+  </div>
+  <div class="adm-sec">
     <h2>🎯 Brand Requirements <span class="stag">PER-BRAND OVERRIDE</span></h2>
     <p style="font-size:11px;color:var(--tx3);margin-bottom:12px">Define exactly which fields and documents are <strong>mandatory</strong> for each brand. Dealers cannot submit until everything required is filled and attached. Brands without an override follow the profile defaults above.</p>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
@@ -627,7 +632,10 @@ FORM_FIELDS_CFG.forEach(f=>{const el=document.getElementById(f.fid);if(!el)retur
 const st=cfg?cfg[f.key]:(f.def||'optional');wrap.style.display=st==='hidden'?'none':'';el.required=st==='required';
 const lab=wrap.querySelector('label');if(lab){let star=lab.querySelector('.rq-dyn');if(st==='required'){if(!star){star=document.createElement('span');star.className='rq rq-dyn';star.textContent=' *';lab.appendChild(star);}}else if(star)star.remove();}});
 updChk();}
-function renderAdmin(){renderBrandCfg();renderUsers();renderWarrantyCfg();renderDocReq();populateBrandReqSel();renderBrandReq();}
+function renderAdmin(){renderBrandCfg();renderUsers();renderWarrantyCfg();renderDocReq();populateBrandReqSel();renderBrandReq();renderBrandCur();}
+function renderBrandCur(){const el=document.getElementById('adm-bcur');if(!el)return;
+el.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px">'+Object.keys(BRANDS).sort().map(b=>{const cur=brandCur(b);
+return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px"><span class="chip ${BRANDS[b]||'generic'}">${b}</span><select onchange="setBrandCur('${b.replace(/'/g,"\\'")}',this.value)" style="width:auto;font-size:10px;padding:3px 6px;background:var(--sf);border:1px solid var(--bd2);border-radius:6px;color:var(--tx)"><option value="EUR" ${cur==='EUR'?'selected':''}>\u20ac EUR</option><option value="USD" ${cur==='USD'?'selected':''}>$ USD</option></select></div>`;}).join('')+'</div>';}
 function renderBrandCfg(){const cfg=LBCfg(),el=document.getElementById('adm-bcfg');if(!el)return;const optL={required:'Required',optional:'Optional',hidden:'Hidden'};let h=`<div style="overflow-x:auto"><table class="ct" style="font-size:11px"><thead><tr><th>Field</th>`;PROFILES_CFG.forEach(p=>h+=`<th>${PROFILE_LABELS[p]}</th>`);h+=`</tr></thead><tbody>`;FORM_FIELDS_CFG.forEach(f=>{h+=`<tr><td style="font-weight:500">${f.label}</td>`;PROFILES_CFG.forEach(p=>{const v=(cfg[p]||{})[f.key]||'optional';h+=`<td><select id="bcfg-${p}-${f.key}" style="font-size:10px;padding:2px 4px;background:var(--sf2);border:1px solid var(--bd);border-radius:4px;color:var(--tx)">`;['required','optional','hidden'].forEach(o=>h+=`<option value="${o}" ${v===o?'selected':''}>${optL[o]}</option>`);h+=`</select></td>`;});h+=`</tr>`;});h+=`</tbody></table></div>`;el.innerHTML=h;}
 function saveBrandCfg(){const cfg={};PROFILES_CFG.forEach(p=>{cfg[p]={};FORM_FIELDS_CFG.forEach(f=>{const el=document.getElementById(`bcfg-${p}-${f.key}`);if(el)cfg[p][f.key]=el.value;});});SBCfg(cfg);toast('Configuration saved','s');}
 function renderUsers(){const users=LUsers(),el=document.getElementById('adm-usrs');if(!el)return;const note='<div style="color:var(--tx3);font-size:11px;font-family:var(--mo);padding:6px 0">Users are managed in the Supabase dashboard: Authentication \u2192 Add user, then add a row in the profiles table.</div>';el.innerHTML=note+users.map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;margin-bottom:6px"><div style="flex:1"><strong style="font-size:12px">${u.name||u.id}</strong> <span class="badge ${u.role==='importer'?'b-a':'b-p'}" style="font-size:9px">${u.role==='importer'?'Importer':'Dealer'}</span>${u.dealer?` <span style="font-size:11px;color:var(--tx3)">${u.dealer}</span>`:''}</div></div>`).join('');}

@@ -261,7 +261,7 @@ table.ct td.mn{font-family:var(--mo);font-size:11px}
         <div class="stype-card" id="st-goodwill" onclick="setSubType('goodwill')"><div style="font-size:18px">🤝</div><strong>Goodwill / Commercial Support</strong><div class="stype-desc">Vehicle out of warranty, but with grounds for the brand to support the repair.</div></div>
       </div>
       <div id="st-extra-pre" style="display:none;margin-top:12px">
-        <div style="padding:10px 12px;border-radius:9px;background:rgba(234,154,12,.08);border:1px solid rgba(234,154,12,.3);font-size:11px;color:var(--warn);font-family:var(--mo);margin-bottom:10px">💡 Advice: open a <strong>Technical Support Ticket</strong> with the brand before requesting pre-approval — it strengthens the technical grounds of the request. Do not finalize the repair before approval.</div>
+        <div style="padding:10px 12px;border-radius:9px;background:rgba(234,154,12,.08);border:1px solid rgba(234,154,12,.3);font-size:11px;color:var(--warn);font-family:var(--mo);margin-bottom:10px">💡 Advice: open a <strong>Technical Support Ticket</strong> with the brand before requesting pre-approval — it strengthens the technical grounds of the request. Do not finalize the repair before approval. RO conclusion, parts invoice and new/installed part photos are not requested at this stage.</div>
         <div class="fd" style="max-width:340px"><label>Technical Support Ticket Nº <span class="opt">(recommended)</span></label><input id="f-tsticket" type="text" placeholder="e.g. TS-2026-001"></div>
       </div>
       <div id="st-extra-gw" style="display:none;margin-top:12px">
@@ -513,7 +513,7 @@ let RTCH=null;
 function subscribeRealtime(){if(!sb||RTCH)return;RTCH=sb.channel('wcp-sync');
 for(const t in SB_TABLES){RTCH.on('postgres_changes',{event:'*',schema:'public',table:t},p=>{const key=SB_TABLES[t];if(p.eventType==='DELETE'){const id=p.old&&p.old.id;DB[key]=DB[key].filter(o=>RID(o)!==id);}else if(p.new&&p.new.data){const o=p.new.data,arr=DB[key],i=arr.findIndex(x=>RID(x)===p.new.id);if(i>=0)arr[i]=o;else arr.push(o);}
 try{if(SESSION){reRender();updateBell();}}catch(e){}});}
-RTCH.on('postgres_changes',{event:'*',schema:'public',table:'settings'},p=>{if(p.new&&p.new.key){DB.settings[p.new.key]=p.new.value;if(p.new.key==='network')applyNetwork();}try{if(SESSION)reRender();}catch(e){}});
+RTCH.on('postgres_changes',{event:'*',schema:'public',table:'settings'},p=>{if(p.new&&p.new.key){DB.settings[p.new.key]=p.new.value;if(p.new.key==='network')applyNetwork();}try{if(SESSION){reRender();applyFormCfg();}}catch(e){}});
 RTCH.subscribe();}
 async function doLoginSB(){const err=document.getElementById('login-err');err.classList.remove('on');if(!sb){err.textContent='\u26a0 Backend not configured yet.';err.classList.add('on');return;}
 const email=document.getElementById('li-email').value.trim(),pass=document.getElementById('li-pass').value;
@@ -627,7 +627,7 @@ function loginTab(){}
 const FORM_FIELDS_CFG=[{key:'model',label:'Model',fid:'f-model'},{key:'engineNo',label:'Engine Nº',fid:'f-engno',def:'hidden'},{key:'engineType',label:'Engine Type/Code',fid:'f-engtype',def:'hidden'},{key:'prodDate',label:'Production Date',fid:'f-proddate',def:'hidden'},{key:'salesDate',label:'Sale Date',fid:'f-sales',def:'required'},{key:'salesKm',label:'Sale KM',fid:'f-salkm'},{key:'extWarrantyNo',label:'Ext. Warranty Nº',fid:'f-extw',def:'hidden'},{key:'extWarrantyExp',label:'Ext. Warranty Valid Until',fid:'f-extwexp',def:'hidden'},{key:'usage',label:'Usage/Purpose',fid:'f-usage'},{key:'attr',label:'Attributes',fid:'f-attr'},{key:'custType',label:'Customer Type',fid:'f-ctype'},{key:'custName',label:'Customer Name',fid:'f-cname'},{key:'claimNo',label:'Claim Nº',fid:'f-cln'},{key:'partsInvoice',label:'Parts Invoice Nº',fid:'f-pinv',def:'hidden'},{key:'dealerRef',label:'Dealer Internal Ref',fid:'f-dref',def:'hidden'},{key:'preApprovalNo',label:'Prior Pre-Approval Nº',fid:'f-papp',def:'hidden'},{key:'roOpen',label:'RO Open',fid:'f-roo'},{key:'roConc',label:'RO Conclusion',fid:'f-roc'},{key:'failDate',label:'Failure Date',fid:'f-faildate',def:'hidden'},{key:'repStart',label:'Repair Start Date',fid:'f-repstart',def:'hidden'},{key:'technician',label:'Technician',fid:'f-tech',def:'hidden'},{key:'km',label:'Mileage (km)',fid:'f-km'},{key:'complaint',label:'Complaint',fid:'f-cq'},{key:'diagnosis',label:'Diagnosis',fid:'f-dg'},{key:'solution',label:'Solution',fid:'f-sol'},{key:'laborHours',label:'Labour Hours',fid:'f-lh'},];
 const PROFILES_CFG=['psa','mahindra','chinese','generic'];
 const PROFILE_LABELS={'psa':'PSA/Stellantis','mahindra':'Mahindra','chinese':'Chinese Brands','generic':'Generic'};
-function applyFormCfg(){const brand=document.getElementById('f-br')?.value||'';const cfg=brand?effFieldCfg(brand):null;
+function applyFormCfg(){const brand=document.getElementById('f-br')?.value||'';const cfg=brand?effFieldCfgSub(brand):null;
 FORM_FIELDS_CFG.forEach(f=>{const el=document.getElementById(f.fid);if(!el)return;const wrap=el.closest('.fd');if(!wrap)return;
 const st=cfg?cfg[f.key]:(f.def||'optional');wrap.style.display=st==='hidden'?'none':'';el.required=st==='required';
 const lab=wrap.querySelector('label');if(lab){let star=lab.querySelector('.rq-dyn');if(st==='required'){if(!star){star=document.createElement('span');star.className='rq rq-dyn';star.textContent=' *';lab.appendChild(star);}}else if(star)star.remove();}});
@@ -732,7 +732,7 @@ function logout(){SESSION=null;if(sb)sb.auth.signOut();document.getElementById('
 function startApp(){LANG='en';document.getElementById('login').classList.add('off');document.getElementById('app').classList.add('on');buildNav();if(SESSION.role==='dealer'){document.getElementById('uav').textContent=SESSION.dealer.slice(0,2).toUpperCase();document.getElementById('ulabel').textContent=SESSION.dealer+' · '+(DEALERS[SESSION.dealer]?.country||'');setupDealerForm();SW('vs');}else{document.getElementById('uav').textContent='IM';document.getElementById('ulabel').textContent='Importer (Admin)';SW('vd');}}
 function populateAdminDealers(){const sel=document.getElementById('new-udealer');if(!sel)return;sel.innerHTML='<option value="">Select...</option>'+ALL_DEALERS.map(d=>`<option value="${d}">${d}</option>`).join('');}
 function buildNav(){const nav=document.getElementById('navtabs');if(SESSION.role==='dealer'){nav.innerHTML=`<button class="ntab on" id="nt-vs" onclick="SW('vs')">${T('nav_submit')}</button><button class="ntab" id="nt-vdl" onclick="SW('vdl')">${T('nav_myclaims')}</button>`;document.getElementById('langswitch')?.querySelectorAll('.langbtn').forEach(b=>b.classList.toggle('on',b.dataset.l===LANG));}else{nav.innerHTML=`<button class="ntab on" id="nt-vd" onclick="SW('vd')">${T('nav_bo')}</button><button class="ntab" id="nt-vnc" onclick="SW('vnc')">${T('nav_ncft')}</button><button class="ntab" id="nt-vrate" onclick="SW('vrate')">${T('nav_rates')}</button><button class="ntab" id="nt-vnet" onclick="SW('vnet')">${T('nav_net')}</button><button class="ntab" id="nt-vadm" onclick="SW('vadm')">${T('nav_admin')}</button><button class="ntab" id="nt-vstat" onclick="SW('vstat')">${T('nav_stats')}</button>`;document.getElementById('langswitch')?.querySelectorAll('.langbtn').forEach(b=>b.classList.toggle('on',b.dataset.l===LANG));}}
-function SW(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));document.getElementById(id).classList.add('on');const nt=document.getElementById('nt-'+id);if(nt)nt.classList.add('on');if(id==='vd'){populateImporterFilters();rdb();}if(id==='vdl')rdp();if(id==='vnc'){populateNCFT();renderNCorl();renderNCl();renderFTorl();}if(id==='vrate'){populateRateSelectors();renderRates();}if(id==='vnet')renderNet();if(id==='vadm'){populateAdminDealers();renderAdmin();}if(id==='vstat')renderStats();}
+function SW(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));document.getElementById(id).classList.add('on');const nt=document.getElementById('nt-'+id);if(nt)nt.classList.add('on');if(id==='vs')applyFormCfg();if(id==='vd'){populateImporterFilters();rdb();}if(id==='vdl')rdp();if(id==='vnc'){populateNCFT();renderNCorl();renderNCl();renderFTorl();}if(id==='vrate'){populateRateSelectors();renderRates();}if(id==='vnet')renderNet();if(id==='vadm'){populateAdminDealers();renderAdmin();}if(id==='vstat')renderStats();}
 function setupDealerForm(){const d=SESSION.dealer;document.getElementById('f-dl').value=d;
 if(!DEALERS[d])toast('\u26a0 Dealer "'+d+'" is not in the network configuration. Ask the importer to add it in the Network tab.','e');
 document.getElementById('vs-sub').textContent=`${d} \u00b7 ${DEALERS[d]?.country||'\u2014'} \u00b7 brands: ${(DEALERS[d]?.brands||[]).join(', ')}`;
@@ -742,14 +742,16 @@ function SBCfgBrand(v){DB.settings.bcfgBrand=v;sbSetting('bcfgBrand',v);}
 function LDocReqBrand(){return DB.settings.docreqBrand||{};}
 function SDocReqBrand(v){DB.settings.docreqBrand=v;sbSetting('docreqBrand',v);}
 function effFieldCfg(brand){const prof=BRANDS[brand]||'generic';const bb=LBCfgBrand()[brand]||{};const pp=LBCfg()[prof]||{};const out={};FORM_FIELDS_CFG.forEach(f=>{out[f.key]=bb[f.key]||pp[f.key]||f.def||'optional';});return out;}
+function effFieldCfgSub(brand){const cfg=effFieldCfg(brand);if(SUBTYPE==='preapproval'){['roConc','preApprovalNo','partsInvoice','repStart'].forEach(k=>{cfg[k]='hidden';});}return cfg;}
+function effDocReqSub(brand){let d=effDocReq(brand)||[];if(SUBTYPE==='preapproval')d=d.filter(s=>s!=='newpart'&&s!=='installed');return d;}
 function effDocReq(brand){const prof=BRANDS[brand]||'generic';const bb=LDocReqBrand()[brand];return bb!==undefined?bb:((LDocReq()[prof])||[]);}
 function missingList(){const brand=document.getElementById('f-br')?.value||'';if(!brand)return['Brand'];
-const cfg=effFieldCfg(brand),miss=[];
+const cfg=effFieldCfgSub(brand),miss=[];
 if(!(document.getElementById('f-vin')?.value||'').trim())miss.push('VIN');
 if(!(document.getElementById('f-or')?.value||'').trim())miss.push('Repair Order Nº');
 FORM_FIELDS_CFG.forEach(f=>{if(cfg[f.key]==='required'){const el=document.getElementById(f.fid);if(el&&!String(el.value||'').trim())miss.push(f.label);}});
 if(SUBTYPE==='goodwill'&&!(document.getElementById('f-gwjust')?.value||'').trim())miss.push('Goodwill justification');
-effDocReq(brand).forEach(s=>{if(!(AST[s]||[]).length)miss.push('\ud83d\udcce '+(DOC_LABELS[s]||s));});
+effDocReqSub(brand).forEach(s=>{if(!(AST[s]||[]).length)miss.push('\ud83d\udcce '+(DOC_LABELS[s]||s));});
 return miss;}
 function updChk(){const el=document.getElementById('chk-panel');if(!el)return;const brand=document.getElementById('f-br')?.value;if(!brand){el.style.display='none';return;}
 const miss=missingList();const btn=document.getElementById('btn-submit');
@@ -775,7 +777,7 @@ function setSubType(t){SUBTYPE=t;['warranty','preapproval','goodwill'].forEach(x
 const pre=document.getElementById('st-extra-pre');if(pre)pre.style.display=t==='preapproval'?'block':'none';
 const gw=document.getElementById('st-extra-gw');if(gw)gw.style.display=t==='goodwill'?'block':'none';
 const h=document.querySelector('.fhdr h1');if(h)h.textContent=t==='warranty'?'Warranty Claim Submission':t==='preapproval'?'Pre-Approval Request':'Goodwill / Commercial Support Request';
-liveWarrantyCheck();}
+applyFormCfg();liveWarrantyCheck();}
 function warrantyCheck(brand,salesDate,roOpen,km,salesKm){const cfg=(LWarranty()||{})[brand];if(!cfg)return null;const lim=warMonths(cfg);if(!lim&&!cfg.km)return null;if(!salesDate)return null;const sD=new Date(salesDate);if(isNaN(sD))return null;const rD=roOpen?new Date(roOpen):new Date();const monthsUsed=((isNaN(rD)?new Date():rD)-sD)/(30.4375*86400000);const kmUsed=(parseFloat(km)||0)-(parseFloat(salesKm)||0);const overM=!!lim&&monthsUsed>lim;const overK=!!cfg.km&&kmUsed>parseFloat(cfg.km);return{inWarranty:!(overM||overK),monthsUsed:Math.round(monthsUsed*10)/10,kmUsed:Math.round(kmUsed),limitMonths:lim||null,limitKm:parseFloat(cfg.km)||null,overM,overK};}
 function warrantyBanner(w,subType){if(!w)return'';
 if(w.monthsUsed==null&&w.yearsUsed!=null){w={...w,monthsUsed:Math.round(w.yearsUsed*12),limitMonths:w.limitYears?Math.round(w.limitYears*12):null,overM:w.overY};}
@@ -864,6 +866,7 @@ function seedRates(){}
 if(sb){sb.auth.getSession().then(({data})=>{if(data&&data.session)initSession(data.session);});}
 ['f-br','f-sales','f-salkm','f-km','f-roo'].forEach(id=>{const e=document.getElementById(id);if(e){e.addEventListener('input',liveWarrantyCheck);e.addEventListener('change',liveWarrantyCheck);}});
 const vsEl=document.getElementById('vs');if(vsEl){vsEl.addEventListener('input',()=>updChk());vsEl.addEventListener('change',()=>updChk());}
+try{applyFormCfg();}catch(e){}
 
 // ── CURRENCY HELPERS ──
 function getCurr(prof){return prof==='psa'?'EUR':'USD';}

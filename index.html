@@ -265,6 +265,7 @@ table.ct td.mn{font-family:var(--mo);font-size:11px}
         <div class="fd" style="max-width:340px"><label>Technical Support Ticket Nº <span class="opt">(recommended)</span></label><input id="f-tsticket" type="text" placeholder="e.g. TS-2026-001"></div>
       </div>
       <div id="st-extra-gw" style="display:none;margin-top:12px">
+        <div style="padding:10px 12px;border-radius:9px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.3);font-size:11px;color:#7c3aed;font-family:var(--mo);margin-bottom:10px">💡 Goodwill requires: sale date + current km (to quantify how far out of warranty), failure date, customer name, and <strong>Support Docs</strong> (service history / evidence backing the request). The stronger the justification, the higher the chance the brand supports it.</div>
         <div class="fd"><label>Goodwill Justification <span class="rq">*</span></label><textarea id="f-gwjust" placeholder="Why should the brand support this repair? (customer loyalty, borderline km, recurring issue, commercial agreement...)"></textarea></div>
       </div>
     </div>
@@ -742,8 +743,14 @@ function SBCfgBrand(v){DB.settings.bcfgBrand=v;sbSetting('bcfgBrand',v);}
 function LDocReqBrand(){return DB.settings.docreqBrand||{};}
 function SDocReqBrand(v){DB.settings.docreqBrand=v;sbSetting('docreqBrand',v);}
 function effFieldCfg(brand){const prof=BRANDS[brand]||'generic';const bb=LBCfgBrand()[brand]||{};const pp=LBCfg()[prof]||{};const out={};FORM_FIELDS_CFG.forEach(f=>{out[f.key]=bb[f.key]||pp[f.key]||f.def||'optional';});return out;}
-function effFieldCfgSub(brand){const cfg=effFieldCfg(brand);if(SUBTYPE==='preapproval'){['roConc','preApprovalNo','partsInvoice','repStart'].forEach(k=>{cfg[k]='hidden';});}return cfg;}
-function effDocReqSub(brand){let d=effDocReq(brand)||[];if(SUBTYPE==='preapproval')d=d.filter(s=>s!=='newpart'&&s!=='installed');return d;}
+function effFieldCfgSub(brand){const cfg=effFieldCfg(brand);
+if(SUBTYPE==='preapproval'){['roConc','preApprovalNo','partsInvoice','repStart'].forEach(k=>{cfg[k]='hidden';});}
+if(SUBTYPE==='goodwill'){['salesDate','salesKm','km','custName','failDate'].forEach(k=>{cfg[k]='required';});}
+return cfg;}
+function effDocReqSub(brand){let d=(effDocReq(brand)||[]).slice();
+if(SUBTYPE==='preapproval')d=d.filter(s=>s!=='newpart'&&s!=='installed');
+if(SUBTYPE==='goodwill'&&!d.includes('docs'))d.push('docs');
+return d;}
 function effDocReq(brand){const prof=BRANDS[brand]||'generic';const bb=LDocReqBrand()[brand];return bb!==undefined?bb:((LDocReq()[prof])||[]);}
 function missingList(){const brand=document.getElementById('f-br')?.value||'';if(!brand)return['Brand'];
 const cfg=effFieldCfgSub(brand),miss=[];

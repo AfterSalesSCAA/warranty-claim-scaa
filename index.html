@@ -807,7 +807,7 @@ function renderFL(slot){const el=document.getElementById('fl-'+slot);if(!el)retu
 function rmFile(slot,i){AST[slot].splice(i,1);renderFL(slot);updChk();}
 function ficon(n){const e=(n||'').split('.').pop().toLowerCase();return e==='pdf'?'📄':['jpg','jpeg','png','webp','gif'].includes(e)?'🖼':['mp4','mov'].includes(e)?'🎥':'📎';}
 function fsize(b){return b>=1048576?(b/1048576).toFixed(1)+'MB':Math.round(b/1024)+'KB';}
-function buildRev(){const brand=document.getElementById('f-br').value,dealer=SESSION.dealer,vin=document.getElementById('f-vin').value,or=document.getElementById('f-or').value,ct=(SUBTYPE==='preapproval'?'Pre-Approval':SUBTYPE==='goodwill'?'Goodwill':'Warranty'),lh=document.getElementById('f-lh').value;document.getElementById('f-lhtot').value=lh||0;const parts=getParts(),sublet=getSublet(),rate=getRate(brand,dealer),moc=rate*(parseFloat(lh)||0);const totalF=['oldpart','newpart','odo','vinphoto','front','installed','docs'].reduce((s,k)=>s+AST[k].length,0);document.getElementById('rev').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 26px;margin-bottom:12px"><div>🏢 <strong style="color:var(--tx3)">Dealer:</strong> <strong style="color:var(--tx)">${dealer}</strong></div><div>🏷 <strong style="color:var(--tx3)">Brand:</strong> <strong style="color:var(--ac)">${brand||'—'}</strong> ${brand?`<span class="chip ${BRANDS[brand]}">${BRANDS[brand]}</span>`:''}</div><div>🔩 <strong style="color:var(--tx3)">VIN:</strong> ${vin||'—'}</div><div>📄 <strong style="color:var(--tx3)">OR:</strong> ${or||'—'}</div><div>📋 <strong style="color:var(--tx3)">Claim Type:</strong> ${ct||'—'}</div><div>⏱ <strong style="color:var(--tx3)">Labour Hours:</strong> <strong style="color:var(--ac)">${lh||0}h</strong></div><div>🔧 <strong style="color:var(--tx3)">Parts:</strong> ${parts.length}</div><div>💧 <strong style="color:var(--tx3)">Sublet:</strong> ${sublet.length} (${sublet.reduce((s,x)=>s+x.usd,0).toFixed(2)} USD)</div></div><div class="info-box">⏱ Estimated Labour Cost: ${lh||0}h × ${rate>0?fm(rate)+' '+FSYM()+'/h':'(rate not defined)'} = <strong style="color:var(--ok)">${rate>0?fm(moc)+' '+FSYM():'to be set in back-office'}</strong> · VAT excl.</div><div style="margin-top:8px;padding:7px 12px;background:rgba(22,163,74,.06);border:1px solid rgba(22,163,74,.2);border-radius:8px;font-size:11px;color:#15803d">🗄 ${totalF} file(s) ready</div>`;}
+function buildRev(){const brand=document.getElementById('f-br').value,dealer=SESSION.dealer,vin=document.getElementById('f-vin').value,or=document.getElementById('f-or').value,ct=(SUBTYPE==='preapproval'?'Pre-Approval':SUBTYPE==='goodwill'?'Goodwill':'Warranty'),lh=document.getElementById('f-lh').value;document.getElementById('f-lhtot').value=lh||0;const parts=getParts(),sublet=getSublet(),rate=getRate(brand,dealer),hrs=parseFloat(lh)||0,moc=rate*hrs,cur=FSYM();const partsTotal=parts.reduce((s,p)=>s+(p.qty||0)*(p.unitCost||0),0);const subTotal=sublet.reduce((s,x)=>s+(parseFloat(x.usd)||0),0);const claimTotal=partsTotal+moc;const totalF=['oldpart','newpart','odo','vinphoto','front','installed','docs'].reduce((s,k)=>s+AST[k].length,0);const matRows=parts.length?parts.map(p=>`<tr><td class="mn">${p.code||'—'}${p.causal?' <span style="color:var(--err);font-size:9px">● causal</span>':''}</td><td>${p.desc||'—'}</td><td class="mn" style="text-align:right">${p.qty||0}</td><td class="mn" style="text-align:right">${fm(p.unitCost)} ${cur}</td><td class="mn" style="text-align:right">${fm((p.qty||0)*(p.unitCost||0))} ${cur}</td></tr>`).join(''):`<tr><td colspan="5" style="text-align:center;color:var(--tx3)">No materials</td></tr>`;const subRows=sublet.length?sublet.map(s=>`<tr><td>${s.desc||'—'}</td><td class="mn" style="text-align:right">${fm(s.usd)} USD</td></tr>`).join(''):`<tr><td colspan="2" style="text-align:center;color:var(--tx3)">No sublet</td></tr>`;const secTit=t=>`<div style="font-family:var(--mo);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--ac);margin:4px 0 5px">${t}</div>`;document.getElementById('rev').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 26px;margin-bottom:12px"><div>🏢 <strong style="color:var(--tx3)">Dealer:</strong> <strong style="color:var(--tx)">${dealer}</strong></div><div>🏷 <strong style="color:var(--tx3)">Brand:</strong> <strong style="color:var(--ac)">${brand||'—'}</strong> ${brand?`<span class="chip ${BRANDS[brand]}">${BRANDS[brand]}</span>`:''}</div><div>🔩 <strong style="color:var(--tx3)">VIN:</strong> ${vin||'—'}</div><div>📄 <strong style="color:var(--tx3)">OR:</strong> ${or||'—'}</div><div>📋 <strong style="color:var(--tx3)">Claim Type:</strong> ${ct||'—'}</div><div>⏱ <strong style="color:var(--tx3)">Labour Hours:</strong> <strong style="color:var(--ac)">${lh||0}h</strong></div></div>${secTit('🔧 Materials')}<table class="ct" style="margin-bottom:10px"><thead><tr><th>Part Code</th><th>Description</th><th style="text-align:right">Qty</th><th style="text-align:right">Unit Cost</th><th style="text-align:right">Total</th></tr></thead><tbody>${matRows}</tbody><tfoot><tr><td colspan="4" style="text-align:right;font-weight:700">Materials Total:</td><td class="mn" style="text-align:right;font-weight:700;color:var(--ok)">${fm(partsTotal)} ${cur}</td></tr></tfoot></table>${secTit('⏱ Labour')}<div class="info-box" style="margin-bottom:10px">${lh||0}h × ${rate>0?fm(rate)+' '+cur+'/h':'(rate not defined)'} = <strong style="color:var(--ok)">${rate>0?fm(moc)+' '+cur:'to be set in back-office'}</strong> · VAT excl.</div>${secTit('💧 Sublet')}<table class="ct" style="margin-bottom:10px"><thead><tr><th>Description</th><th style="text-align:right">Value</th></tr></thead><tbody>${subRows}</tbody><tfoot><tr><td style="text-align:right;font-weight:700">Sublet Total:</td><td class="mn" style="text-align:right;font-weight:700;color:var(--ok)">${fm(subTotal)} USD</td></tr></tfoot></table><div style="margin-top:6px;padding:10px 13px;background:rgba(22,163,74,.07);border:1px solid rgba(22,163,74,.28);border-radius:9px;font-size:12px;color:var(--tx)"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="color:var(--tx3)">Materials</span><strong>${fm(partsTotal)} ${cur}</strong></div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="color:var(--tx3)">Labour</span><strong>${rate>0?fm(moc)+' '+cur:'to be set'}</strong></div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--tx3)">Sublet</span><strong>${fm(subTotal)} USD</strong></div><div style="display:flex;justify-content:space-between;border-top:1px solid rgba(22,163,74,.3);padding-top:5px"><strong style="color:#15803d">Claim Total (Materials + Labour)</strong><strong style="color:#15803d;font-size:13px">${rate>0?fm(claimTotal)+' '+cur:fm(partsTotal)+' '+cur+' + labour TBD'}</strong></div>${subTotal>0?`<div style="font-size:10px;color:var(--tx3);margin-top:4px">+ Sublet ${fm(subTotal)} USD (billed separately in USD)</div>`:''}</div><div style="margin-top:8px;padding:7px 12px;background:rgba(22,163,74,.06);border:1px solid rgba(22,163,74,.2);border-radius:8px;font-size:11px;color:#15803d">🗄 ${totalF} file(s) ready</div>`;}
 async function submitClaim(){const gv=id=>{const e=document.getElementById(id);return e?String(e.value||'').trim():'';};const brand=document.getElementById('f-br').value,dealer=SESSION.dealer;if(!brand){toast('Select the brand.','e');return;}if(SUBTYPE==='goodwill'&&!(document.getElementById('f-gwjust')?.value||'').trim()){toast('Goodwill justification is required.','e');GS(1);return;}const __miss=missingList();if(__miss.length){toast('\u26a0 Missing required information: '+__miss.slice(0,5).join(', ')+(__miss.length>5?' (+'+(__miss.length-5)+' more)':''),'e');updChk();return;}const vinVal=document.getElementById('f-vin').value,orVal=document.getElementById('f-or').value;const dupChk=LC().find(x=>x.vin&&x.vin===vinVal&&x.or&&x.or===orVal&&x.dealer===dealer);if(dupChk){toast('⚠ Possible duplicate: '+dupChk.id+' already has this VIN+OR. Check before submitting.','w');}const id=GID(brand),prof=BRANDS[brand];const slots=['oldpart','newpart','odo','vinphoto','front','installed','docs'];const attachments=[];slots.forEach(slot=>AST[slot].forEach(f=>attachments.push({slot,name:f.name,size:f.size,mime:f.mime,path:`${id}/${slot}/${f.name.replace(/[^\w.\-]/g,'_')}`})));if(sb&&attachments.length){toast('Uploading '+attachments.length+' file(s)\u2026','s');for(const a of attachments){const ent=AST[a.slot].find(x=>x.file&&a.path.endsWith('/'+x.name.replace(/[^\w.\-]/g,'_')));if(ent){const{error}=await sb.storage.from('attachments').upload(a.path,ent.file,{upsert:true});if(error){toast('Upload failed ('+a.name+'): '+error.message,'e');return;}}}}
 const claim={id,brand,profile:prof,subType:SUBTYPE,tsTicket:(document.getElementById('f-tsticket')?.value||'').trim(),goodwillJust:(document.getElementById('f-gwjust')?.value||'').trim(),dealer,country:(DEALERS[dealer]?.country||''),vin:document.getElementById('f-vin').value,model:document.getElementById('f-model').value,engineNo:gv('f-engno'),engineType:gv('f-engtype'),prodDate:gv('f-proddate'),salesDate:document.getElementById('f-sales').value,salesKm:document.getElementById('f-salkm').value,extWarrantyNo:gv('f-extw'),extWarrantyExp:gv('f-extwexp'),usage:document.getElementById('f-usage').value,attr:'',custType:document.getElementById('f-ctype').value,custName:document.getElementById('f-cname').value,or:document.getElementById('f-or').value,claimNo:document.getElementById('f-cln').value,partsInvoice:gv('f-pinv'),preApprovalNo:gv('f-papp'),roOpen:document.getElementById('f-roo').value,roConc:document.getElementById('f-roc').value,failDate:gv('f-faildate'),repStart:gv('f-repstart'),technician:gv('f-tech'),km:document.getElementById('f-km').value,claimType:(SUBTYPE==='preapproval'?'Pre-Approval':SUBTYPE==='goodwill'?'Goodwill':'Warranty'),complaint:document.getElementById('f-cq').value,diagnosis:document.getElementById('f-dg').value,solution:document.getElementById('f-sol').value,labourCodes:getLabour().map(l=>l.code).filter(Boolean),parts:getParts(),partsTotal:(()=>{const ps=getParts();return ps.reduce((s,p)=>s+(p.qty||0)*(p.unitCost||0),0);})(),laborHours:document.getElementById('f-lh').value,labourLines:getLabour(),currency:brandCur(brand),sublet:getSublet(),attachments,status:'pending',ncBrand:'',invoice:'',submittedAt:new Date().toISOString(),history:[{state:'Submitted',date:new Date().toISOString(),user:dealer,note:`${attachments.length} file(s) · ${document.getElementById('f-lh').value||0}h MO`}]};const w=warrantyCheck(brand,claim.salesDate,claim.roOpen,claim.km,claim.salesKm);if(w){claim.warranty=w;claim.warrantyFlag=!w.inWarranty;}
 if(claim.warrantyFlag&&SUBTYPE==='warranty'){const why=[w.overM?w.monthsUsed+' months (limit '+w.limitMonths+')':'',w.overK?w.kmUsed.toLocaleString('en')+' km (limit '+(w.limitKm||0).toLocaleString('en')+')':''].filter(Boolean).join(' · ');
@@ -1014,6 +1014,83 @@ function ncReceive(ncId){
   if(amount===null||amount==='')return;
   const ncs=LNC(),idx=ncs.findIndex(n=>n.id===ncId);
   if(idx<0)return;
+  ncs[idx].received={date:new Date().toISOString(),amount:parseFloat(amount)||0};
+  SNC(ncs);
+  renderNCl();
+  toast('NC '+ncId+' marked as received','s');
+}
+
+// ── BULK ACTIONS ──
+let bulkSel=[];
+function toggleBulk(id){
+  const i=bulkSel.indexOf(id);
+  if(i>=0)bulkSel.splice(i,1);else bulkSel.push(id);
+  updateBulkBar();
+}
+function toggleBulkAll(chk){
+  bulkSel=chk.checked?Array.from(document.querySelectorAll('.bulk-chk')).map(x=>x.dataset.id):[];
+  document.querySelectorAll('.bulk-chk').forEach(x=>x.checked=chk.checked);
+  updateBulkBar();
+}
+function updateBulkBar(){
+  const bar=document.getElementById('bulk-bar');
+  if(!bar)return;
+  if(bulkSel.length){bar.style.display='flex';const cnt=document.getElementById('bulk-cnt');if(cnt)cnt.textContent=bulkSel.length+' selected';}
+  else bar.style.display='none';
+  document.querySelectorAll('.bulk-chk').forEach(x=>x.checked=bulkSel.includes(x.dataset.id));
+}
+function clearBulk(){
+  bulkSel=[];
+  document.querySelectorAll('.bulk-chk').forEach(x=>x.checked=false);
+  const ca=document.getElementById('chk-all');if(ca)ca.checked=false;
+  updateBulkBar();
+}
+function bulkAction(st){
+  if(!bulkSel.length)return;
+  const n=bulkSel.length;
+  const all=LC();
+  const lbl={analysis:'Under Review',approved:'Approved',rejected:'Rejected',archived:'Archived'};
+  bulkSel.forEach(id=>{
+    const idx=all.findIndex(x=>x.id===id);
+    if(idx>=0){
+      all[idx].status=st;
+      all[idx].history=all[idx].history||[];
+      all[idx].history.push({state:lbl[st]||st,date:new Date().toISOString(),user:SESSION.userName||'Importador',note:'Ação em massa'});
+    }
+  });
+  SC(all);
+  clearBulk();
+  rdb();
+  toast(n+' claims → '+(lbl[st]||st),'s');
+}
+
+// ── EXPORT CSV ──
+function exportCSV(){
+  const all=LC();
+  const hdrs=['ID','Dealer','País','Marca','VIN','OR','Status','Submetido','Accepted Labour (€)','Materiais Aceite (€)','Accepted Sublet (€)','Creditado (€)','Fatura','Total Peças (€)','Fora Garantia'];
+  const rows=all.map(x=>[
+    x.id,x.dealer,x.country||'',x.brand||'',x.vin||'',x.or||'',x.status||'',
+    x.submittedAt?x.submittedAt.slice(0,10):'',
+    acceptedMOVal(x).toFixed(2),
+    acceptedMaterialsVal(x).toFixed(2),
+    acceptedSubletVal(x).toFixed(2),
+    (x.creditedAmount||0).toFixed(2),
+    x.invoice||'',
+    (x.partsTotal||0).toFixed(2),
+    x.warrantyFlag?'YES':''
+  ]);
+  const csv=[hdrs,...rows].map(r=>r.map(v=>'"'+(String(v||'').replace(/"/g,'""'))+'"').join(',')).join('\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='warranty_claims_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  toast('CSV exportado ('+all.length+' claims)','s');
+}
+
+
+</script>
+</body>
+</html>n;
   ncs[idx].received={date:new Date().toISOString(),amount:parseFloat(amount)||0};
   SNC(ncs);
   renderNCl();

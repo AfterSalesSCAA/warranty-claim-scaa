@@ -908,7 +908,7 @@ function addImporterRemark(id){const all=LC(),i=all.findIndex(c=>c.id===id);if(i
 function toast(msg,type='s'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' on';setTimeout(()=>t.classList.remove('on'),4000);}
 function seed(){}
 function seedRates(){}
-const __isRecovery=(location.hash||'').indexOf('type=recovery')>=0;if(sb){sb.auth.onAuthStateChange((ev,sess)=>{if(ev==='PASSWORD_RECOVERY')showResetForm();});}if(sb&&!__isRecovery){sb.auth.getSession().then(({data})=>{if(data&&data.session)initSession(data.session);});}
+const __isRecovery=(location.hash||'').indexOf('type=recovery')>=0;try{if(sb&&sb.auth&&typeof sb.auth.onAuthStateChange==='function'){sb.auth.onAuthStateChange((ev,sess)=>{if(ev==='PASSWORD_RECOVERY')showResetForm();});}}catch(e){console.error('onAuthStateChange',e);}try{if(sb&&!__isRecovery&&sb.auth){sb.auth.getSession().then(({data})=>{if(data&&data.session)initSession(data.session);}).catch(()=>{});}}catch(e){}
 ['f-br','f-sales','f-salkm','f-km','f-roo'].forEach(id=>{const e=document.getElementById(id);if(e){e.addEventListener('input',liveWarrantyCheck);e.addEventListener('change',liveWarrantyCheck);}});
 const vsEl=document.getElementById('vs');if(vsEl){vsEl.addEventListener('input',()=>updChk());vsEl.addEventListener('change',()=>updChk());}
 try{applyFormCfg();}catch(e){}
@@ -1178,4 +1178,28 @@ const monBars=monKeys.length?monKeys.map(k=>`<div style='flex:1;display:flex;fle
 const topBody=top.map(r=>`<tr><td class='mn'>${r.cn||'—'}</td><td><span class='chip ${BRANDS[r.brand]||'generic'}' style='font-size:9px'>${r.brand||'—'}</span></td><td style='text-align:right'>${fm(num(r.vMarca))} €</td><td style='text-align:right'>${fm(num(r.vDealer))} €</td></tr>`).join('');
 const pc={};rows.forEach(r=>{const ct=((DEALERS[r.country]&&DEALERS[r.country].country)||'(no country)').toUpperCase();pc[ct]=pc[ct]||{n:0,vM:0,vD:0};pc[ct].n++;pc[ct].vM+=num(r.vMarca);pc[ct].vD+=num(r.vDealer);});
 const paisRows=Object.entries(pc).sort((a,b)=>b[1].vD-a[1].vD);const maxP=Math.max(1,...paisRows.map(x=>x[1].vD));
-const paisBody=paisRows.map(([c,d])=>`<tr><td>${c}</td><td style='text-align:center'>${d.n}</td><td style='text-align:right'>${fm(d.vM)} &euro;</td><td style='text-align:right'>${fm(d.vD)} &euro;</td><td style='width:90px'><div style='background:var(--sf2);borde
+const paisBody=paisRows.map(([c,d])=>`<tr><td>${c}</td><td style='text-align:center'>${d.n}</td><td style='text-align:right'>${fm(d.vM)} &euro;</td><td style='text-align:right'>${fm(d.vD)} &euro;</td><td style='width:90px'><div style='background:var(--sf2);border-radius:3px;height:8px;overflow:hidden'><div style='width:${Math.round(d.vD/maxP*100)}%;height:100%;background:var(--ok)'></div></div></td></tr>`).join('');
+el.innerHTML=
+`<div class='kg' style='grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px'>
+<div class='kp'><div class='kl'>Entries</div><div class='kv'>${n}</div></div>
+<div class='kp'><div class='kl'>Brand &euro; (total)</div><div class='kv' style='font-size:15px'>${fm(vM)} &euro;</div></div>
+<div class='kp'><div class='kl'>Dealer &euro; (total)</div><div class='kv' style='font-size:15px'>${fm(vD)} &euro;</div></div>
+<div class='kp' style='background:${diff>=0?'rgba(22,163,74,.07)':'rgba(239,68,68,.07)'}'><div class='kl'>Difference</div><div class='kv' style='font-size:15px'>${fm(diff)} &euro; (${diffPct}%)</div></div>
+<div class='kp' style='background:rgba(59,130,246,.07)'><div class='kl'>Invoiced</div><div class='kv'>${inv}/${n} (${invPct}%)</div></div>
+<div class='kp' style='background:rgba(245,158,11,.07)'><div class='kl'>Pending Invoice</div><div class='kv' style='font-size:15px'>${pendCnt} &middot; ${fm(pendVal)} &euro;</div></div>
+<div class='kp'><div class='kl'>Invoiced &euro;</div><div class='kv' style='font-size:15px'>${fm(invVal)} &euro;</div></div>
+<div class='kp'><div class='kl'>DAF</div><div class='kv'>${dafN}/${n} (${dafPct}%)</div></div>
+</div>
+<div style='display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px'>
+<div class='adm-sec'><h2>By Brand</h2><table class='ct' style='font-size:11px'><thead><tr><th>Brand</th><th style='text-align:center'>Entries</th><th style='text-align:right'>Brand &euro;</th><th style='text-align:right'>Dealer &euro;</th><th></th></tr></thead><tbody>${brandBody}</tbody></table></div>
+<div class='adm-sec'><h2>By Dealer</h2><table class='ct' style='font-size:11px'><thead><tr><th>Dealer</th><th style='text-align:center'>Entries</th><th style='text-align:right'>Brand &euro;</th><th style='text-align:right'>Dealer &euro;</th></tr></thead><tbody>${countryBody}</tbody></table></div>
+</div>
+<div class='adm-sec' style='margin-bottom:14px'><h2>Monthly Trend (Brand &euro; vs Dealer &euro;)</h2><div style='display:flex;gap:6px;align-items:flex-end;height:120px;padding:10px 0'>${monBars}</div><div style='display:flex;gap:14px;font-size:10px;color:var(--tx3);font-family:var(--mo)'><span><span style='display:inline-block;width:9px;height:9px;background:var(--ac);border-radius:2px'></span> Brand &euro;</span><span><span style='display:inline-block;width:9px;height:9px;background:var(--ok);border-radius:2px'></span> Dealer &euro;</span></div></div>
+<div style='display:grid;grid-template-columns:1fr 1fr;gap:14px'>
+<div class='adm-sec'><h2>Top 5 Credit Notes (Brand &euro;)</h2><table class='ct' style='font-size:11px'><thead><tr><th>Credit Note</th><th>Brand</th><th style='text-align:right'>Brand &euro;</th><th style='text-align:right'>Dealer &euro;</th></tr></thead><tbody>${topBody}</tbody></table></div>
+<div class='adm-sec'><h2>By Country</h2><table class='ct' style='font-size:11px'><thead><tr><th>Country</th><th style='text-align:center'>Entries</th><th style='text-align:right'>Brand &euro;</th><th style='text-align:right'>Dealer &euro;</th><th></th></tr></thead><tbody>${paisBody}</tbody></table></div>
+</div>`;
+}
+</script>
+</body>
+</html>

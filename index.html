@@ -666,15 +666,28 @@ const nd=new Date();for(let i=5;i>=0;i--){const d=new Date(nd.getFullYear(),nd.g
 all.forEach(c=>{if(!c.submittedAt)return;const d=new Date(c.submittedAt);const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;if(k in monthMap)monthMap[k]++;});
 const maxM=Math.max(...Object.values(monthMap),1);
 const stColors={pending:'var(--ac)',analysis:'#f59e0b',approved:'var(--ok)',credited:'#10b981',rejected:'var(--err)',paid:'#7c3aed',archived:'var(--tx3)',returned:'#d97706'};
+const needsAction=(byStatus.pending||0)+(byStatus.analysis||0)+(byStatus.returned||0);
+const rejRate=resolved.length?Math.round((byStatus.rejected||0)/resolved.length*100):0;
+const curMonthKey=`${nd.getFullYear()}-${String(nd.getMonth()+1).padStart(2,'0')}`;
+const thisMonth=all.filter(c=>c.submittedAt&&`${new Date(c.submittedAt).getFullYear()}-${String(new Date(c.submittedAt).getMonth()+1).padStart(2,'0')}`===curMonthKey).length;
+const oow=all.filter(c=>c.warrantyFlag).length;
+const subTypes={warranty:{t:0,a:0},preapproval:{t:0,a:0},goodwill:{t:0,a:0}};all.forEach(c=>{const k=c.subType||'warranty';if(!subTypes[k])subTypes[k]={t:0,a:0};subTypes[k].t++;if(['approved','credited','paid'].includes(c.status))subTypes[k].a++;});
+const resBuckets={lt7:0,d7_15:0,d15_30:0,gt30:0};closed.forEach(c=>{const h=c.history?.[c.history.length-1];const d=h?(new Date(h.date)-new Date(c.submittedAt))/86400000:0;if(d<7)resBuckets.lt7++;else if(d<15)resBuckets.d7_15++;else if(d<30)resBuckets.d15_30++;else resBuckets.gt30++;});
+const ctry={};all.forEach(c=>{const k=(DEALERS[c.dealer]&&DEALERS[c.dealer].country)||'—';if(!ctry[k])ctry[k]={total:0,appv:0};ctry[k].total++;if(['approved','credited','paid'].includes(c.status))ctry[k].appv++;});
+const ctryRows=Object.entries(ctry).sort((a,b)=>b[1].total-a[1].total);
+const brandHours={};all.forEach(c=>{if(!brandHours[c.brand])brandHours[c.brand]={h:0,n:0};brandHours[c.brand].h+=parseFloat(c.laborHours)||0;brandHours[c.brand].n++;});
+const oldestOpen=[...openClaims].filter(c=>c.submittedAt).sort((a,b)=>new Date(a.submittedAt)-new Date(b.submittedAt)).slice(0,8);
 const el=document.getElementById('stat-body');if(!el)return;
 el.innerHTML=
-`<div class='kg' style='grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px'>
+`<div class='kg' style='grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px'>
 <div class='kp'><div class='kl'>${T('kpi_total')}</div><div class='kv'>${total}</div></div>
-<div class='kp kpp'><div class='kl'>${T('kpi_pending')}</div><div class='kv'>${byStatus.pending||0}</div></div>
+<div class='kp kpp'><div class='kl'>Em aberto</div><div class='kv'>${needsAction}</div></div>
 <div class='kp kpa'><div class='kl'>${T('stat_approval')}</div><div class='kv'>${approvalRate}%</div></div>
-<div class='kp' style='background:rgba(245,158,11,.07)'><div class='kl'>Overdue &gt;60d</div><div class='kv'>${aging.gt60}</div></div>
-<div class='kp' style='background:rgba(217,119,6,.07)'><div class='kl'>Returned</div><div class='kv'>${byStatus.returned||0}</div></div>
+<div class='kp' style='background:rgba(239,68,68,.07)'><div class='kl'>Taxa rejeição</div><div class='kv'>${rejRate}%</div></div>
 <div class='kp'><div class='kl'>${T('stat_avgdays')}</div><div class='kv'>${avgDays}</div></div>
+<div class='kp' style='background:rgba(245,158,11,.07)'><div class='kl'>Atrasadas &gt;60d</div><div class='kv'>${aging.gt60}</div></div>
+<div class='kp' style='background:rgba(217,119,6,.07)'><div class='kl'>Fora garantia</div><div class='kv'>${oow}</div></div>
+<div class='kp' style='background:rgba(59,130,246,.07)'><div class='kl'>Este mês</div><div class='kv'>${thisMonth}</div></div>
 </div>
 <div style='display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px'>
 <div class='adm-sec'><h2>${T('stat_status')}</h2>
@@ -695,11 +708,13 @@ ${[[T('aging_lt15'),aging.lt15,'var(--ok)'],[T('aging_15_30'),aging.d15_30,'var(
 </div>
 <div style='display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px'>
 <div class='adm-sec'><h2>${T('stat_by_brand')}</h2>
-<table class='ct' style='font-size:11px'><thead><tr><th>${T('col_brand')}</th><th>${T('col_total')}</th><th>${T('col_approval')}</th></tr></thead><tbody>
+<table class='ct' style='font-size:11px'><thead><tr><th>${T('col_brand')}</th><th>${T('col_total')}</th><th>${T('col_approval')}</th><th>Rej.</th><th>Méd. h</th></tr></thead><tbody>
 ${Object.entries(brands).sort((a,b)=>b[1].total-a[1].total).map(([brand,d])=>`
 <tr><td><span class='chip ${BRANDS[brand]||'generic'}' style='font-size:9px'>${brand}</span></td>
 <td style='text-align:center'>${d.total}</td>
-<td style='text-align:center'>${d.total?Math.round(d.appv/d.total*100):0}%</td></tr>`).join('')}
+<td style='text-align:center'>${d.total?Math.round(d.appv/d.total*100):0}%</td>
+<td style='text-align:center;color:${d.rej>0?'var(--err)':'var(--tx3)'}'>${d.rej}</td>
+<td style='text-align:center'>${brandHours[brand]&&brandHours[brand].n?(brandHours[brand].h/brandHours[brand].n).toFixed(1):'—'}</td></tr>`).join('')}
 </tbody></table></div>
 <div class='adm-sec'><h2>${T('stat_trend')}</h2>
 <div style='display:flex;align-items:flex-end;gap:5px;height:90px;padding:4px 0 20px'>
@@ -711,7 +726,7 @@ ${Object.entries(monthMap).map(([mo,v])=>`
 </div>`).join('')}
 </div></div>
 </div>
-<div class='adm-sec'><h2>${T('stat_by_dealer')}</h2>
+<div style='display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px'><div class='adm-sec'><h2>Por tipo de pedido</h2><table class='ct' style='font-size:11px'><thead><tr><th>Tipo</th><th>Total</th><th>Aprovação</th></tr></thead><tbody>${[['Garantia','warranty'],['Pré-aprovação','preapproval'],['Goodwill','goodwill']].map(([lbl,k])=>{const d=subTypes[k]||{t:0,a:0};return `<tr><td>${lbl}</td><td style='text-align:center'>${d.t}</td><td style='text-align:center'>${d.t?Math.round(d.a/d.t*100):0}%</td></tr>`;}).join('')}</tbody></table></div><div class='adm-sec'><h2>Tempo de resolução (fechadas)</h2><table class='ct' style='font-size:11px'><thead><tr><th>Prazo</th><th>Nº</th><th>%</th></tr></thead><tbody>${[['&lt; 7 dias',resBuckets.lt7,'var(--ok)'],['7–15 dias',resBuckets.d7_15,'var(--tx2)'],['15–30 dias',resBuckets.d15_30,'var(--warn)'],['&gt; 30 dias',resBuckets.gt30,'var(--err)']].map(([l,v,col])=>`<tr><td>${l}</td><td style='text-align:center;font-weight:600;color:${v>0?col:'var(--tx3)'}'>${v}</td><td><div style='background:var(--sf2);border-radius:3px;height:10px;overflow:hidden'><div style='width:${closed.length?Math.round(v/closed.length*100):0}%;height:100%;background:${col}'></div></div></td></tr>`).join('')}</tbody></table></div></div><div style='display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px'><div class='adm-sec'><h2>Por país</h2><table class='ct' style='font-size:11px'><thead><tr><th>País</th><th>Total</th><th>Aprovação</th></tr></thead><tbody>${ctryRows.map(([c,d])=>`<tr><td>${c}</td><td style='text-align:center'>${d.total}</td><td style='text-align:center'>${d.total?Math.round(d.appv/d.total*100):0}%</td></tr>`).join('')}</tbody></table></div><div class='adm-sec' style='border:1px solid ${oldestOpen.some(c=>(now-new Date(c.submittedAt))/86400000>30)?'var(--warn)':'var(--bd)'}'><h2>⏳ Ação pendente — mais antigas em aberto</h2><table class='ct' style='font-size:11px'><thead><tr><th>ID</th><th>Dealer</th><th>Estado</th><th>Dias</th></tr></thead><tbody>${oldestOpen.length?oldestOpen.map(c=>{const d=Math.round((now-new Date(c.submittedAt))/86400000);return `<tr onclick="om('${c.id}')" style='cursor:pointer'><td class='mn' style='color:var(--ac)'>${c.id}</td><td>${c.dealer||'—'}</td><td>${bdg(c.status)}</td><td style='text-align:center;font-weight:700;color:${d>60?'var(--err)':d>30?'var(--warn)':'var(--tx2)'}'>${d}</td></tr>`;}).join(''):"<tr><td colspan='4' style='text-align:center;color:#15803d'>Sem claims em aberto ✅</td></tr>"}</tbody></table></div></div><div class='adm-sec'><h2>${T('stat_by_dealer')}</h2>
 <div style='overflow-x:auto'><table class='ct' style='font-size:11px'>
 <thead><tr><th>${T('col_dealer')}</th><th>${T('col_country')}</th><th>${T('col_total')}</th><th>${T('col_approval')}</th><th>${T('col_rejected')}</th><th>${T('col_score')}</th></tr></thead><tbody>
 ${topDealers.map(([dealer,d])=>{const rate=d.total?Math.round(d.appv/d.total*100):0;const rejR=d.total?d.rej/d.total:0;const score=Math.min(100,Math.round(rate*0.7+(rejR<0.1?30:rejR<0.2?15:0)));const sc=score>=80?'var(--ok)':score>=55?'var(--warn)':'var(--err)';return`

@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WarrantyClaim Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -237,6 +240,7 @@ table.ct td.mn{font-family:var(--mo);font-size:11px}
       <div class="login-field"><label>Email</label><input id="li-email" type="email" placeholder="you@company.com" autocomplete="username"></div>
       <div class="login-field"><label>Password</label><input id="li-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLoginSB()"></div>
       <button class="login-btn" onclick="doLoginSB()">Sign In</button>
+      <div style="text-align:center;margin-top:10px"><a href="#" onclick="forgotPassword();return false;" style="font-size:11px;color:var(--ac);font-family:var(--mo);text-decoration:none">Forgot password?</a></div>
     </div>
     <div class="login-err" id="login-err">Invalid credentials.</div>
   </div>
@@ -508,12 +512,15 @@ for(const t in SB_TABLES){RTCH.on('postgres_changes',{event:'*',schema:'public',
 try{if(SESSION){reRender();updateBell();}}catch(e){}});}
 RTCH.on('postgres_changes',{event:'*',schema:'public',table:'settings'},p=>{if(p.new&&p.new.key){DB.settings[p.new.key]=p.new.value;if(p.new.key==='network')applyNetwork();}try{if(SESSION){reRender();applyFormCfg();}}catch(e){}});
 RTCH.subscribe();}
-async function doLoginSB(){const err=document.getElementById('login-err');err.classList.remove('on');if(!sb){err.textContent='\u26a0 Backend not configured yet.';err.classList.add('on');return;}
+async function doLoginSB(){const err=document.getElementById('login-err');err.classList.remove('on');err.style.color='';if(!sb){err.textContent='⚠ Backend not configured yet.';err.classList.add('on');return;}
 const email=document.getElementById('li-email').value.trim(),pass=document.getElementById('li-pass').value;
 if(!email||!pass){err.textContent='Enter email and password.';err.classList.add('on');return;}
-const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
-if(error){err.textContent='Invalid credentials.';err.classList.add('on');return;}
-await initSession(data.session);}
+let res;try{res=await sb.auth.signInWithPassword({email,password:pass});}catch(e){err.textContent='⚠ Cannot reach the server — it may be paused or you are offline. Try again in a minute.';err.classList.add('on');return;}
+if(res.error){const m=(res.error.message||'').toLowerCase();if(m.includes('invalid'))err.textContent='Email or password incorrect — use "Forgot password?" to reset it.';else if(m.includes('fetch')||m.includes('network')||m.includes('failed'))err.textContent='⚠ Cannot reach the server — it may be paused or you are offline.';else err.textContent='Login error: '+res.error.message;err.classList.add('on');return;}
+await initSession(res.data.session);}
+async function forgotPassword(){const err=document.getElementById('login-err');err.classList.remove('on');err.style.color='';const email=(document.getElementById('li-email').value||'').trim();if(!email){err.textContent='Type your email above first, then click "Forgot password?".';err.classList.add('on');return;}if(!sb){err.textContent='⚠ Backend not configured.';err.classList.add('on');return;}const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});if(error){err.textContent='Could not send reset email: '+error.message;err.classList.add('on');return;}err.style.color='var(--ok)';err.textContent='✓ Reset email sent to '+email+'. Open the link in that email to set a new password.';err.classList.add('on');}
+function showResetForm(){const m=document.getElementById('login-main');if(m)m.innerHTML='<div class="login-field"><label>New password</label><input id="li-newpass" type="password" placeholder="At least 6 characters" autocomplete="new-password"></div><button class="login-btn" onclick="setNewPassword()">Save new password</button>';const e=document.getElementById('login-err');if(e)e.classList.remove('on');}
+async function setNewPassword(){const err=document.getElementById('login-err');err.classList.remove('on');err.style.color='';const pw=document.getElementById('li-newpass')?document.getElementById('li-newpass').value:'';if((pw||'').length<6){err.textContent='Password must be at least 6 characters.';err.classList.add('on');return;}const{error}=await sb.auth.updateUser({password:pw});if(error){err.textContent='Could not update password: '+error.message;err.classList.add('on');return;}err.style.color='var(--ok)';err.textContent='✓ Password updated — signing you in...';err.classList.add('on');try{history.replaceState(null,'',location.pathname);}catch(e){}const{data}=await sb.auth.getSession();if(data&&data.session)initSession(data.session);}
 async function initSession(session){const{data:p,error}=await sb.from('profiles').select('*').eq('id',session.user.id).single();
 if(error||!p||!p.role){await sb.auth.signOut();const err=document.getElementById('login-err');err.textContent='No profile configured for this account. Ask the administrator.';err.classList.add('on');return;}
 SESSION={role:p.role,dealer:p.dealer||'',userName:p.name||session.user.email};
@@ -901,7 +908,7 @@ function addImporterRemark(id){const all=LC(),i=all.findIndex(c=>c.id===id);if(i
 function toast(msg,type='s'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' on';setTimeout(()=>t.classList.remove('on'),4000);}
 function seed(){}
 function seedRates(){}
-if(sb){sb.auth.getSession().then(({data})=>{if(data&&data.session)initSession(data.session);});}
+const __isRecovery=(location.hash||'').indexOf('type=recovery')>=0;if(sb){sb.auth.onAuthStateChange((ev,sess)=>{if(ev==='PASSWORD_RECOVERY')showResetForm();});}if(sb&&!__isRecovery){sb.auth.getSession().then(({data})=>{if(data&&data.session)initSession(data.session);});}
 ['f-br','f-sales','f-salkm','f-km','f-roo'].forEach(id=>{const e=document.getElementById(id);if(e){e.addEventListener('input',liveWarrantyCheck);e.addEventListener('change',liveWarrantyCheck);}});
 const vsEl=document.getElementById('vs');if(vsEl){vsEl.addEventListener('input',()=>updChk());vsEl.addEventListener('change',()=>updChk());}
 try{applyFormCfg();}catch(e){}

@@ -111,7 +111,7 @@ textarea{resize:vertical;min-height:64px}
 .kg4{grid-template-columns:repeat(4,1fr)}
 .kp{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px 16px}
 .kl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);font-family:var(--sa);font-weight:600;margin-bottom:4px}
-.kv{font-size:22px;font-weight:800}
+.kv{font-size:21px;font-weight:700;font-family:var(--sa)}
 .ks{font-size:10px;color:var(--tx2);font-family:var(--mo);margin-top:1px}
 .kp.kpp .kv{color:var(--warn)}.kp.kpa .kv{color:var(--ok)}.kp.kpr .kv{color:var(--err)}.kp.kpd .kv{color:var(--ac)}
 .fb{display:flex;gap:8px;align-items:center;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:9px 13px;flex-wrap:wrap}
@@ -1184,15 +1184,14 @@ const pc={};rows.forEach(r=>{const ct=((DEALERS[r.country]&&DEALERS[r.country].c
 const paisRows=Object.entries(pc).sort((a,b)=>b[1].vD-a[1].vD);const maxP=Math.max(1,...paisRows.map(x=>x[1].vD));
 const paisBody=paisRows.map(([c,d])=>`<tr><td>${c}</td><td style='text-align:center'>${d.n}</td><td style='text-align:right'>${fm(d.vM)} &euro;</td><td style='text-align:right'>${fm(d.vD)} &euro;</td><td style='width:90px'><div style='background:var(--sf2);border-radius:3px;height:8px;overflow:hidden'><div style='width:${Math.round(d.vD/maxP*100)}%;height:100%;background:var(--ok)'></div></div></td></tr>`).join('');
 el.innerHTML=
-`<div class='kg' style='grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px'>
-<div class='kp'><div class='kl'>Entries</div><div class='kv'>${n}</div></div>
-<div class='kp'><div class='kl'>Brand &euro; (total)</div><div class='kv' style='font-size:15px'>${fm(vM)} &euro;</div></div>
-<div class='kp'><div class='kl'>Dealer &euro; (total)</div><div class='kv' style='font-size:15px'>${fm(vD)} &euro;</div></div>
-<div class='kp' style='background:${diff>=0?'rgba(22,163,74,.07)':'rgba(239,68,68,.07)'}'><div class='kl'>Difference</div><div class='kv' style='font-size:15px'>${fm(diff)} &euro; (${diffPct}%)</div></div>
-<div class='kp' style='background:rgba(59,130,246,.07)'><div class='kl'>Invoiced</div><div class='kv'>${inv}/${n} (${invPct}%)</div></div>
-<div class='kp' style='background:rgba(245,158,11,.07)'><div class='kl'>Pending Invoice</div><div class='kv' style='font-size:15px'>${pendCnt} &middot; ${fm(pendVal)} &euro;</div></div>
-<div class='kp'><div class='kl'>Invoiced &euro;</div><div class='kv' style='font-size:15px'>${fm(invVal)} &euro;</div></div>
-<div class='kp'><div class='kl'>DAF</div><div class='kv'>${dafN}/${n} (${dafPct}%)</div></div>
+`<div class='kg' style='grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px'>
+<div class='kp'><div class='kl'>Credit Entries</div><div style='font-size:21px;font-weight:700;font-family:var(--sa)'>${n}</div><div style='font-size:11px;color:var(--tx3);margin-top:3px;font-family:var(--sa)'>rows in this view</div></div>
+<div class='kp'><div class='kl'>Brand Credit</div><div style='font-size:18px;font-weight:700;font-family:var(--sa)'>${fm(vM)} &euro;</div><div style='font-size:11px;color:var(--tx3);margin-top:3px;font-family:var(--sa)'>credited by the brands</div></div>
+<div class='kp'><div class='kl'>Dealer Invoiced</div><div style='font-size:18px;font-weight:700;font-family:var(--sa)'>${fm(vD)} &euro;</div><div style='font-size:11px;color:var(--tx3);margin-top:3px;font-family:var(--sa)'>invoiced to dealers</div></div>
+<div class='kp' style='background:${diff>=0?'rgba(22,163,74,.07)':'rgba(239,68,68,.07)'}'><div class='kl'>Difference</div><div style='font-size:18px;font-weight:700;font-family:var(--sa);color:${diff>=0?'var(--ok)':'var(--err)'}'>${fm(diff)} &euro;</div><div style='font-size:11px;color:var(--tx3);margin-top:3px;font-family:var(--sa)'>dealer vs brand (${diffPct}%)</div></div>
+<div class='kp' style='background:rgba(59,130,246,.06)'><div class='kl'>Invoiced</div><div style='font-size:21px;font-weight:700;font-family:var(--sa)'>${inv} / ${n}</div><div style='font-size:11px;color:var(--tx3);margin-top:3px;font-family:var(--sa)'>${invPct}% &middot; ${fm(invVal)} &euro; billed</div></div>
+<div class='kp' style='background:rgba(245,158,11,.07)'><div class='kl'>Pending to Invoice</div><div style='font-size:21px;font-weight:700;font-family:var(--sa);color:#d97706'>${pendCnt}</div><div style='font-size:11px;color:var(--tx3);margin-top:3px;font-family:var(--sa)'>${fm(pendVal)} &euro; (= brand credit)</div></div>
+<div class='kp'><div class='kl'>DAF Sent</div><div style='font-size:21px;font-weight:700;font-family:var(--sa)'>${dafN} / ${n}</div><div style='font-size:11px;color:var(--tx3);margin-top:3px;font-family:var(--sa)'>${dafPct}%</div></div>
 </div>
 <div style='display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px'>
 <div class='adm-sec'><h2>By Brand</h2><table class='ct' style='font-size:11px'><thead><tr><th>Brand</th><th style='text-align:center'>Entries</th><th style='text-align:right'>Brand &euro;</th><th style='text-align:right'>Dealer &euro;</th><th></th></tr></thead><tbody>${brandBody}</tbody></table></div>

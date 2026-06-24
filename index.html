@@ -110,7 +110,7 @@ textarea{resize:vertical;min-height:64px}
 .kg{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
 .kg4{grid-template-columns:repeat(4,1fr)}
 .kp{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px 16px}
-.kl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--tx3);font-family:var(--mo);margin-bottom:4px}
+.kl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);font-family:var(--sa);font-weight:600;margin-bottom:4px}
 .kv{font-size:22px;font-weight:800}
 .ks{font-size:10px;color:var(--tx2);font-family:var(--mo);margin-top:1px}
 .kp.kpp .kv{color:var(--warn)}.kp.kpa .kv{color:var(--ok)}.kp.kpr .kv{color:var(--err)}.kp.kpd .kv{color:var(--ac)}
@@ -134,11 +134,11 @@ table.ct td.mn{font-family:var(--mo);font-size:11px}
 .b-r{background:rgba(225,29,72,.13);color:var(--err)}
 .b-pd{background:rgba(139,92,246,.13);color:#7c3aed}
 .b-ar{background:rgba(100,116,139,.15);color:var(--tx3)}
-.chip{display:inline-block;padding:2px 7px;border-radius:6px;font-size:10px;font-family:var(--mo);font-weight:600;background:rgba(59,130,246,.1);color:var(--ac);border:1px solid rgba(59,130,246,.2)}
-.chip.psa{background:rgba(59,130,246,.1);color:#2563eb;border-color:rgba(59,130,246,.2)}
-.chip.mahindra{background:rgba(234,154,12,.12);color:#b45309;border-color:rgba(234,154,12,.25)}
-.chip.chinese{background:rgba(225,29,72,.1);color:#be123c;border-color:rgba(225,29,72,.2)}
-.chip.generic{background:rgba(100,116,139,.12);color:#475569;border-color:rgba(100,116,139,.2)}
+.chip{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-family:var(--sa);font-weight:600;background:rgba(100,116,139,.12);color:var(--tx2);border:1px solid rgba(100,116,139,.22)}
+.chip.psa,.chip.mahindra,.chip.chinese,.chip.generic{background:rgba(100,116,139,.12);color:var(--tx2);border-color:rgba(100,116,139,.22)}
+
+
+
 .abtn{background:var(--sf3);border:1px solid var(--bd2);border-radius:5px;padding:3px 8px;font-size:10px;color:var(--tx);cursor:pointer;font-family:var(--mo)}
 .abtn:hover{background:var(--bd2)}
 .mol{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(2px);z-index:200;display:none;align-items:center;justify-content:center;padding:14px}
@@ -464,6 +464,7 @@ table.ct td.mn{font-family:var(--mo);font-size:11px}
 <div id="vstat" class="view">
   <div class="dh"><div><h1 id="stat-title">📊 Statistics & KPIs</h1><p>Real-time data</p></div><button class="btn bg bsm" onclick="renderStats()">↻</button></div>
   <div id="stat-filters" style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px">
+    <div style="font-size:11px;color:var(--tx3);font-family:var(--sa)">Tap to filter — you can select several brands and types to combine them.</div>
     <div id="stat-brandchips" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <div id="stat-typechips" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center"></div>
@@ -642,13 +643,16 @@ function renderUsers(){const users=LUsers(),el=document.getElementById('adm-usrs
 function createUser(){toast('Create users in the Supabase dashboard (Authentication \u2192 Users).','e');}
 function deleteUser(){toast('Manage users in the Supabase dashboard.','e');}
 
-let statFilterBrand='',statFilterType='';
-function statChip(label,active,onclick,cls){return `<span onclick="${onclick}" class="chip ${cls||''}" style="cursor:pointer;padding:4px 10px;font-size:11px;${active?'outline:2px solid var(--ac);outline-offset:1px;font-weight:700':'opacity:.55'}">${label}</span>`;}
-function statRenderChips(){const bc=document.getElementById('stat-brandchips');if(bc){const brands=Object.keys(BRANDS).sort();bc.innerHTML='<span style="font-size:10px;color:var(--tx3);font-family:var(--mo);margin-right:3px">Brand:</span>'+statChip('All',!statFilterBrand,"statSetBrand('')",'generic')+brands.map(b=>statChip(b,statFilterBrand===b,`statSetBrand('${b.replace(/'/g,"\\'")}')`,BRANDS[b]||'generic')).join('');}const tc=document.getElementById('stat-typechips');if(tc){const types=[['','All'],['warranty','Warranty'],['preapproval','Pre-Approval'],['goodwill','Goodwill']];tc.innerHTML='<span style="font-size:10px;color:var(--tx3);font-family:var(--mo);margin-right:3px">Type:</span>'+types.map(([v,l])=>statChip(l,statFilterType===v,`statSetType('${v}')`)).join('');}}
-function statSetBrand(b){statFilterBrand=b;renderStats();}
-function statSetType(t){statFilterType=t;renderStats();}
-function statClearFilters(){statFilterBrand='';statFilterType='';['st-fco','st-fyr'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});renderStats();}
-function statFilteredClaims(){statRenderChips();const fco=(document.getElementById('st-fco')?.value||'').toLowerCase(),fyr=(document.getElementById('st-fyr')?.value||'').trim();return LC().filter(c=>(!statFilterBrand||c.brand===statFilterBrand)&&(!statFilterType||(c.subType||'warranty')===statFilterType)&&(!fco||(c.dealer||'').toLowerCase().includes(fco))&&(!fyr||(c.submittedAt&&String(new Date(c.submittedAt).getFullYear())===fyr)));}
+let statFilterBrands=[],statFilterTypes=[];
+function statChip(label,active,onclick){return `<span onclick="${onclick}" style="cursor:pointer;display:inline-block;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;font-family:var(--sa);border:1px solid ${active?'var(--ac)':'var(--bd)'};background:${active?'var(--ac)':'var(--sf2)'};color:${active?'#fff':'var(--tx2)'}">${label}</span>`;}
+function statToggle(arr,v){const i=arr.indexOf(v);if(i>=0)arr.splice(i,1);else arr.push(v);renderStats();}
+function statToggleBrand(b){statToggle(statFilterBrands,b);}
+function statToggleType(t){statToggle(statFilterTypes,t);}
+function statClearBrands(){statFilterBrands=[];renderStats();}
+function statClearTypes(){statFilterTypes=[];renderStats();}
+function statRenderChips(){const bc=document.getElementById('stat-brandchips');if(bc){const brands=Object.keys(BRANDS).sort();bc.innerHTML='<span style="font-size:11px;color:var(--tx3);font-weight:700;margin-right:5px">Brands:</span>'+statChip('All',statFilterBrands.length===0,'statClearBrands()')+brands.map(b=>statChip(b,statFilterBrands.includes(b),`statToggleBrand('${b.replace(/'/g,"\\'")}')`)).join('');}const tc=document.getElementById('stat-typechips');if(tc){const types=[['warranty','Warranty'],['preapproval','Pre-Approval'],['goodwill','Goodwill']];tc.innerHTML='<span style="font-size:11px;color:var(--tx3);font-weight:700;margin-right:5px">Types:</span>'+statChip('All',statFilterTypes.length===0,'statClearTypes()')+types.map(([v,l])=>statChip(l,statFilterTypes.includes(v),`statToggleType('${v}')`)).join('');}}
+function statClearFilters(){statFilterBrands=[];statFilterTypes=[];['st-fco','st-fyr'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});renderStats();}
+function statFilteredClaims(){statRenderChips();const fco=(document.getElementById('st-fco')?.value||'').toLowerCase(),fyr=(document.getElementById('st-fyr')?.value||'').trim();return LC().filter(c=>(statFilterBrands.length===0||statFilterBrands.includes(c.brand))&&(statFilterTypes.length===0||statFilterTypes.includes(c.subType||'warranty'))&&(!fco||(c.dealer||'').toLowerCase().includes(fco))&&(!fyr||(c.submittedAt&&String(new Date(c.submittedAt).getFullYear())===fyr)));}
 function renderStats(){
 statRenderChips();const all=statFilteredClaims(),now=Date.now();
 const total=all.length;if(!total){document.getElementById('stat-body').innerHTML='<div style="text-align:center;padding:40px;color:var(--tx3);font-family:var(--mo)">No data for the selected filters.</div>';return;}

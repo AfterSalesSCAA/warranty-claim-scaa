@@ -229,6 +229,7 @@ table.ct td.mn{font-family:var(--mo);font-size:11px}
   .arow button { flex: 1; min-width: 100px; }
 }
 
+input.field-err,select.field-err,textarea.field-err{border-color:var(--err)!important;box-shadow:0 0 0 2px rgba(239,68,68,.18)!important}.fd.field-err .upzone{border-color:var(--err)!important;box-shadow:0 0 0 2px rgba(239,68,68,.18)}
 </style>
 </head>
 <body>
@@ -298,7 +299,7 @@ table.ct td.mn{font-family:var(--mo);font-size:11px}
     <div class="fc"><h2>Repair <span class="stag">REPAIR INFORMATION</span></h2>
       <div class="fg">
         <div class="fd"><label>Repair Order No. <span class="rq">*</span></label><input id="f-or" type="text" placeholder="OR-XXXXX"></div>
-        <div class="fd"><label>Job No. <span class="opt">(No. do Trabalho)</span></label><input id="f-job" type="text" placeholder="Job / work No."></div>
+        <div class="fd"><label>Job No.</label><input id="f-job" type="text" placeholder="Job / work No."></div>
         <div class="fd"><label>Claim No.</label><input id="f-cln" type="text" placeholder="Claim nº"></div>
         <div class="fd"><label>Parts Invoice No.</label><input id="f-pinv" type="text" placeholder="Invoice nº"></div>
         <div class="fd"><label>Prior Pre-Approval No.</label><input id="f-papp" type="text" placeholder="If previously approved"></div>
@@ -317,9 +318,9 @@ table.ct td.mn{font-family:var(--mo);font-size:11px}
     <div class="fa"><button class="btn bg" onclick="GS(1)">← Back</button><button class="btn bp" onclick="GS(3)">Next →</button></div>
   </div></div>
   <div class="fstep" id="s3"><div class="si">
-    <div class="fc"><h2>Technical Support <span class="stag">SAME FOR ALL BRANDS</span></h2>
-      <div class="info-box" style="margin-bottom:12px">ℹ One field for every brand system: TAR/Mtis (PSA), CTK (Mahindra), brand portal ticket (Chinese brands), etc. Fill it if a technical support ticket exists for this repair — strongly recommended for Pre-Approvals.</div>
-      <div class="fg"><div class="fd" style="max-width:380px"><label>Technical Support Ticket No. <span class="opt">(optional)</span></label><input id="f-tsticket" type="text" placeholder="Ticket nº in the brand system"></div></div>
+    <div class="fc"><h2>Technical Support <span class="stag">RECOMMENDED</span></h2>
+      <div class="info-box" style="margin-bottom:12px">ℹ It is strongly recommended to always back the claim with a technical support ticket that documents and guides the repair carried out. Enter the ticket number here if one exists — especially important for pre-approvals.</div>
+      <div class="fg"><div class="fd" style="max-width:380px"><label>Technical Support Ticket No. <span class="opt">(optional)</span></label><input id="f-tsticket" type="text" placeholder="Support ticket No."></div></div>
     </div>
     <div class="fa"><button class="btn bg" onclick="GS(2)">← Back</button><button class="btn bp" onclick="GS(4)">Next →</button></div>
   </div></div>
@@ -778,6 +779,8 @@ if(SUBTYPE==='preapproval')d=d.filter(s=>s!=='newpart'&&s!=='installed');
 if(SUBTYPE==='goodwill'&&!d.includes('docs'))d.push('docs');
 return d;}
 function effDocReq(brand){const prof=BRANDS[brand]||'generic';const bb=LDocReqBrand()[brand];return bb!==undefined?bb:((LDocReq()[prof])||[]);}
+function missingFields(){const out=[];const brand=document.getElementById('f-br')?.value||'';if(!brand)return out;const cfg=effFieldCfgSub(brand);const add=(id,label)=>{const el=document.getElementById(id);if(el&&!String(el.value||'').trim())out.push({el:el,label:label});};add('f-vin','VIN');add('f-or','Repair Order No.');FORM_FIELDS_CFG.forEach(f=>{if(cfg[f.key]==='required')add(f.fid,f.label);});if(SUBTYPE==='goodwill')add('f-gwjust','Goodwill justification');effDocReqSub(brand).forEach(slot=>{if(!(AST[slot]||[]).length){const z=document.getElementById('fl-'+slot);const fd=z?z.closest('.fd'):null;if(fd)out.push({el:fd,label:(DOC_LABELS[slot]||slot),doc:true});}});return out;}
+function validateStep(n){const step=document.getElementById('s'+n);if(!step)return true;document.querySelectorAll('.field-err').forEach(e=>e.classList.remove('field-err'));const bad=[];if(n===1){const br=document.getElementById('f-br');if(br&&!br.value)bad.push(br);}missingFields().forEach(m=>{if(m.el&&step.contains(m.el))bad.push(m.el);});if(bad.length){bad.forEach(el=>el.classList.add('field-err'));try{bad[0].scrollIntoView({block:'center',behavior:'smooth'});}catch(_){}toast('Please fill the required fields highlighted in red before continuing.','e');return false;}return true;}
 function missingList(){const brand=document.getElementById('f-br')?.value||'';if(!brand)return['Brand'];
 const cfg=effFieldCfgSub(brand),miss=[];
 if(!(document.getElementById('f-vin')?.value||'').trim())miss.push('VIN');
@@ -789,7 +792,7 @@ return miss;}
 function updChk(){const el=document.getElementById('chk-panel');if(!el)return;const brand=document.getElementById('f-br')?.value;if(!brand){el.style.display='none';return;}
 const miss=missingList();const btn=document.getElementById('btn-submit');
 if(btn){btn.disabled=!!miss.length;btn.style.opacity=miss.length?'.45':'1';btn.style.cursor=miss.length?'not-allowed':'pointer';btn.title=miss.length?'Missing: '+miss.join(', '):'';}
-el.style.display='block';
+el.style.display='none';return;
 if(!miss.length){el.innerHTML='<div style="padding:8px 12px;border-radius:9px;background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.25);color:var(--ok);font-size:11px;font-family:var(--mo)">\u2713 All required information for '+brand+' is complete \u2014 ready to submit</div>';return;}
 el.innerHTML='<div style="padding:8px 12px;border-radius:9px;background:rgba(234,154,12,.07);border:1px solid rgba(234,154,12,.3);font-size:11px;font-family:var(--mo);color:var(--warn)"><strong>\ud83d\udccb Required by '+brand+' \u2014 '+miss.length+' missing:</strong> '+miss.join(' \u00b7 ')+'</div>';}
 function populateBrandReqSel(){const s=document.getElementById('bro-brand');if(!s)return;const cur=s.value;s.innerHTML='<option value="">Select brand...</option>'+Object.keys(BRANDS).sort().map(b=>`<option ${b===cur?'selected':''}>${b}</option>`).join('');}
@@ -821,7 +824,7 @@ return`<div style="padding:10px 12px;border-radius:9px;background:rgba(225,29,72
 function liveWarrantyCheck(){const w=warrantyCheck(document.getElementById('f-br')?.value,document.getElementById('f-sales')?.value,document.getElementById('f-roo')?.value,document.getElementById('f-km')?.value,document.getElementById('f-salkm')?.value);const h=warrantyBanner(w,SUBTYPE);const a=document.getElementById('war-banner');if(a)a.innerHTML=h;const b=document.getElementById('war-banner2');if(b)b.innerHTML=h;}
 function stBadge(c){let b='';if(c.subType==='preapproval')b+=' <span class="badge b-a" style="font-size:8px" title="Pre-Approval">PA</span>';if(c.subType==='goodwill')b+=' <span class="badge b-pd" style="font-size:8px" title="Goodwill">GW</span>';if(c.warrantyFlag&&c.subType!=='goodwill')b+=' <span class="badge b-r" style="font-size:8px" title="Out of warranty">OOW</span>';return b;}
 let cS=1;
-function GS(n){document.getElementById('s'+cS).classList.remove('on');const t=document.getElementById('pt'+cS);t.classList.remove('on');if(n>cS)t.classList.add('dn');else t.classList.remove('dn');cS=n;document.getElementById('s'+n).classList.add('on');document.getElementById('pt'+n).classList.add('on');if(n===6){buildRev();liveWarrantyCheck();}updChk();window.scrollTo({top:56,behavior:'smooth'});}
+function GS(n){if(n>cS&&!validateStep(cS))return;document.getElementById('s'+cS).classList.remove('on');const t=document.getElementById('pt'+cS);t.classList.remove('on');if(n>cS)t.classList.add('dn');else t.classList.remove('dn');cS=n;document.getElementById('s'+n).classList.add('on');document.getElementById('pt'+n).classList.add('on');if(n===6){buildRev();liveWarrantyCheck();}updChk();window.scrollTo({top:56,behavior:'smooth'});}
 function onBrand(v){const prof=BRANDS[v];applyFormCfg(prof||'generic');updateFormCurrency(prof||'generic');}
 function addCode(){}
 function getCodes(){return[];}
@@ -834,7 +837,7 @@ function cgSub(){let t=0;document.querySelectorAll('.sr').forEach(r=>t+=parseFlo
 function getParts(){return Array.from(document.querySelectorAll('.pr')).map(r=>({causal:r.cells[0].querySelector('input').checked,code:r.cells[1].querySelector('input').value,desc:r.cells[2].querySelector('input').value,qty:parseFloat(r.cells[3].querySelector('input').value)||0})).filter(p=>p.code);}
 function getSublet(){return Array.from(document.querySelectorAll('.sr')).map(r=>({desc:r.cells[0].querySelector('input').value,usd:parseFloat(r.cells[1].querySelector('input').value)||0})).filter(s=>s.desc||s.usd);}
 const AST={oldpart:[],newpart:[],odo:[],vinphoto:[],front:[],rear:[],installed:[],cmedia:[],diag:[],docs:[],nc:[],ft2:[]};
-function onFile(e,slot){Array.from(e.target.files).forEach(f=>AST[slot].push({name:f.name,size:f.size,mime:f.type,file:f}));renderFL(slot);updChk();}
+function onFile(e,slot){Array.from(e.target.files).forEach(f=>AST[slot].push({name:f.name,size:f.size,mime:f.type,file:f}));renderFL(slot);try{var z=document.getElementById('fl-'+slot);var fd=z&&z.closest('.fd');if(fd)fd.classList.remove('field-err');}catch(_){}updChk();}
 function drp(e,slot){e.preventDefault();dlv(e.currentTarget);Array.from(e.dataTransfer.files).forEach(f=>AST[slot].push({name:f.name,size:f.size,mime:f.type,file:f}));renderFL(slot);updChk();}
 function dov(e,el){e.preventDefault();el.classList.add('drag');}
 function dlv(el){el.classList.remove('drag');}
@@ -917,7 +920,7 @@ function seed(){}
 function seedRates(){}
 const __isRecovery=(location.hash||'').indexOf('type=recovery')>=0;try{if(sb&&sb.auth&&typeof sb.auth.onAuthStateChange==='function'){sb.auth.onAuthStateChange((ev,sess)=>{if(ev==='PASSWORD_RECOVERY')showResetForm();});}}catch(e){console.error('onAuthStateChange',e);}try{if(sb&&!__isRecovery&&sb.auth){sb.auth.getSession().then(({data})=>{if(data&&data.session)initSession(data.session);}).catch(()=>{});}}catch(e){}
 ['f-br','f-sales','f-salkm','f-km','f-roo'].forEach(id=>{const e=document.getElementById(id);if(e){e.addEventListener('input',liveWarrantyCheck);e.addEventListener('change',liveWarrantyCheck);}});
-const vsEl=document.getElementById('vs');if(vsEl){vsEl.addEventListener('input',()=>updChk());vsEl.addEventListener('change',()=>updChk());}
+const vsEl=document.getElementById('vs');if(vsEl){vsEl.addEventListener('input',(e)=>{try{e.target.classList.remove('field-err');var _fd=e.target.closest&&e.target.closest('.fd');if(_fd)_fd.classList.remove('field-err');}catch(_){}updChk();});vsEl.addEventListener('change',()=>updChk());}
 try{applyFormCfg();}catch(e){}
 
 // ── CURRENCY HELPERS ──

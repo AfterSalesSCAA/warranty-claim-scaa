@@ -277,7 +277,7 @@ input.field-err,select.field-err,textarea.field-err{border-color:var(--err)!impo
       <div class="fg">
         <div class="fd"><label>Dealership</label><input id="f-dl" type="text" readonly style="background:var(--sf2)"></div>
         <div class="fd"><label>Brand <span class="rq">*</span></label><select id="f-br" onchange="onBrand(this.value)"><option value="">Select...</option></select></div>
-        <div class="fd"><label>VIN <span class="rq">*</span></label><input id="f-vin" type="text" placeholder="VIN (17)" maxlength="17" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="fd"><label>VIN</label><input id="f-vin" type="text" placeholder="VIN (17)" maxlength="17" oninput="this.value=this.value.toUpperCase()"></div>
         <div class="fd"><label>Model</label><input id="f-model" type="text" placeholder="Model"></div>
         <div class="fd"><label>Engine No.</label><input id="f-engno" type="text" placeholder="Engine number"><div style="font-size:10px;color:var(--warn);font-family:var(--mo);margin-top:3px">⚠ Always required for engine warranty / pre-approval claims</div></div>
         <div class="fd"><label>Engine Type / Code</label><input id="f-engtype" type="text" placeholder="e.g. DV6FC"></div>
@@ -289,8 +289,8 @@ input.field-err,select.field-err,textarea.field-err{border-color:var(--err)!impo
         <div id="war-banner" style="grid-column:1/-1"></div>
         <div class="fd"><label>Vehicle Type / Usage <span class="opt">(optional)</span></label><select id="f-usage"><option value="">—</option><option>Operation</option><option>Non-operation</option><option>Family car</option><option>Commercial vehicle</option></select></div>
         
-        <div class="fd"><label>Customer Type <span class="opt">(opc.)</span></label><select id="f-ctype"><option value="">—</option><option>Individual customers</option><option>Corporate customers</option><option>Unknown</option></select></div>
-        <div class="fd"><label>Customer Name <span class="opt">(opc.)</span></label><input id="f-cname" type="text" placeholder="Customer name"></div>
+        <div class="fd"><label>Customer Type <span class="opt">(optional)</span></label><select id="f-ctype"><option value="">—</option><option>Individual customers</option><option>Corporate customers</option><option>Unknown</option></select></div>
+        <div class="fd"><label>Customer Name <span class="opt">(optional)</span></label><input id="f-cname" type="text" placeholder="Customer name"></div>
       </div>
     </div>
     <div class="fa"><button class="btn bp" onclick="GS(2)">Next →</button></div>
@@ -298,7 +298,7 @@ input.field-err,select.field-err,textarea.field-err{border-color:var(--err)!impo
   <div class="fstep" id="s2"><div class="si">
     <div class="fc"><h2>Repair <span class="stag">REPAIR INFORMATION</span></h2>
       <div class="fg">
-        <div class="fd"><label>Repair Order No. <span class="rq">*</span></label><input id="f-or" type="text" placeholder="OR-XXXXX"></div>
+        <div class="fd"><label>Repair Order No.</label><input id="f-or" type="text" placeholder="OR-XXXXX"></div>
         <div class="fd"><label>Job No.</label><input id="f-job" type="text" placeholder="Job / work No."></div>
         <div class="fd"><label>Claim No.</label><input id="f-cln" type="text" placeholder="Claim nº"></div>
         <div class="fd"><label>Parts Invoice No.</label><input id="f-pinv" type="text" placeholder="Invoice nº"></div>
@@ -418,12 +418,6 @@ input.field-err,select.field-err,textarea.field-err{border-color:var(--err)!impo
       <div id="nb-list" style="margin-bottom:10px"></div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <input id="nb-name" type="text" placeholder="New brand name" style="max-width:200px">
-        <select id="nb-prof" style="max-width:220px">
-          <option value="generic">Generic claim form</option>
-          <option value="psa">PSA/Stellantis claim form</option>
-          <option value="chinese">Chinese brands claim form</option>
-          <option value="mahindra">Mahindra claim form</option>
-        </select>
         <button class="btn bsm bp" onclick="addBrand()">+ Add Brand</button>
       </div>
     </div>
@@ -604,7 +598,7 @@ el.innerHTML=Object.keys(BRANDS).sort().map(b=>{const used=Object.values(DEALERS
 return `<span class="chip ${BRANDS[b]||'generic'}" style="margin:2px;display:inline-flex;align-items:center;gap:6px">${b}<select onchange="setBrandCur('${b.replace(/'/g,"\\'")}',this.value)" onclick="event.stopPropagation()" style="font-size:9px;padding:1px 2px;border-radius:4px;border:1px solid var(--bd2);background:var(--sf);color:var(--tx);width:auto"><option value="EUR" ${cur==='EUR'?'selected':''}>€ EUR</option><option value="USD" ${cur==='USD'?'selected':''}>$ USD</option></select>${used?'':` <a style="cursor:pointer;font-weight:700" title="Remove brand" onclick="removeBrand('${b.replace(/'/g,"\\'")}')">\u2715</a>`}</span>`;}).join('')+
 '<div style="font-size:10px;color:var(--tx3);font-family:var(--mo);margin-top:6px">The currency applies to NEW claims of that brand (existing claims keep theirs). Brands assigned to a dealer cannot be removed (\u2715 only on unused brands).</div>';}
 function setBrandCur(b,v){BRANDCUR[b]=v;saveNetwork();toast('Currency for '+b+' set to '+v,'s');}
-function addBrand(){const name=(document.getElementById('nb-name').value||'').trim(),prof=document.getElementById('nb-prof').value;
+function addBrand(){const name=(document.getElementById('nb-name').value||'').trim(),prof=(document.getElementById('nb-prof')?.value)||'generic';
 if(!name){toast('Enter the brand name','e');return;}
 if(BRANDS[name]){toast('Brand already exists','e');return;}
 BRANDS[name]=prof;saveNetwork();renderBrandMgr();document.getElementById('nb-name').value='';toast('Brand '+name+' added','s');}
@@ -627,13 +621,13 @@ const SRT=r=>{DB.rates=r;sbUpsert('rates',r);};
 const GID=b=>{const p=(b||'GEN').replace(/[^A-Za-z]/g,'').toUpperCase().slice(0,3)||'GEN',t=Date.now().toString(36).toUpperCase().slice(-4),r=Math.random().toString(36).slice(2,5).toUpperCase();return`CLM-${p}-${t}-${r}`};
 let SESSION=null;
 function loginTab(){}
-const FORM_FIELDS_CFG=[{key:'model',label:'Model',fid:'f-model'},{key:'engineNo',label:'Engine No.',fid:'f-engno',def:'hidden'},{key:'engineType',label:'Engine Type/Code',fid:'f-engtype',def:'hidden'},{key:'prodDate',label:'Production Date',fid:'f-proddate',def:'hidden'},{key:'salesDate',label:'Sale Date',fid:'f-sales',def:'required'},{key:'salesKm',label:'Sale KM',fid:'f-salkm'},{key:'extWarrantyNo',label:'Ext. Warranty No.',fid:'f-extw',def:'hidden'},{key:'extWarrantyExp',label:'Ext. Warranty Valid Until',fid:'f-extwexp',def:'hidden'},{key:'usage',label:'Vehicle Type / Usage',fid:'f-usage'},{key:'custType',label:'Customer Type',fid:'f-ctype'},{key:'custName',label:'Customer Name',fid:'f-cname'},{key:'claimNo',label:'Claim No.',fid:'f-cln'},{key:'partsInvoice',label:'Parts Invoice No.',fid:'f-pinv',def:'hidden'},{key:'preApprovalNo',label:'Prior Pre-Approval No.',fid:'f-papp',def:'hidden'},{key:'tsTicket',label:'Technical Support Ticket No.',fid:'f-tsticket'},{key:'roOpen',label:'RO Open',fid:'f-roo',def:'required'},{key:'roConc',label:'RO Conclusion',fid:'f-roc',def:'required'},{key:'failDate',label:'Failure Date',fid:'f-faildate',def:'hidden'},{key:'repStart',label:'Repair Start Date',fid:'f-repstart',def:'hidden'},{key:'technician',label:'Technician',fid:'f-tech',def:'hidden'},{key:'km',label:'Mileage (km)',fid:'f-km',def:'required'},{key:'complaint',label:'Complaint',fid:'f-cq',def:'required'},{key:'diagnosis',label:'Diagnosis',fid:'f-dg',def:'required'},{key:'solution',label:'Solution',fid:'f-sol',def:'required'},{key:'laborHours',label:'Labour Hours',fid:'f-lh'},];
+const FORM_FIELDS_CFG=[{key:'vin',label:'VIN',fid:'f-vin',def:'required'},{key:'or',label:'Repair Order No.',fid:'f-or',def:'required'},{key:'jobNo',label:'Job No.',fid:'f-job'},{key:'model',label:'Model',fid:'f-model'},{key:'engineNo',label:'Engine No.',fid:'f-engno',def:'hidden'},{key:'engineType',label:'Engine Type/Code',fid:'f-engtype',def:'hidden'},{key:'prodDate',label:'Production Date',fid:'f-proddate',def:'hidden'},{key:'salesDate',label:'Sale Date',fid:'f-sales',def:'required'},{key:'salesKm',label:'Sale KM',fid:'f-salkm'},{key:'extWarrantyNo',label:'Ext. Warranty No.',fid:'f-extw',def:'hidden'},{key:'extWarrantyExp',label:'Ext. Warranty Valid Until',fid:'f-extwexp',def:'hidden'},{key:'usage',label:'Vehicle Type / Usage',fid:'f-usage'},{key:'custType',label:'Customer Type',fid:'f-ctype'},{key:'custName',label:'Customer Name',fid:'f-cname'},{key:'claimNo',label:'Claim No.',fid:'f-cln'},{key:'partsInvoice',label:'Parts Invoice No.',fid:'f-pinv',def:'hidden'},{key:'preApprovalNo',label:'Prior Pre-Approval No.',fid:'f-papp',def:'hidden'},{key:'tsTicket',label:'Technical Support Ticket No.',fid:'f-tsticket'},{key:'roOpen',label:'RO Open',fid:'f-roo',def:'required'},{key:'roConc',label:'RO Conclusion',fid:'f-roc',def:'required'},{key:'failDate',label:'Failure Date',fid:'f-faildate',def:'hidden'},{key:'repStart',label:'Repair Start Date',fid:'f-repstart',def:'hidden'},{key:'technician',label:'Technician',fid:'f-tech',def:'hidden'},{key:'km',label:'Mileage (km)',fid:'f-km',def:'required'},{key:'complaint',label:'Complaint',fid:'f-cq',def:'required'},{key:'diagnosis',label:'Diagnosis',fid:'f-dg',def:'required'},{key:'solution',label:'Solution',fid:'f-sol',def:'required'},{key:'laborHours',label:'Labour Hours',fid:'f-lh'},];
 const PROFILES_CFG=['psa','mahindra','chinese','generic'];
 const PROFILE_LABELS={'psa':'PSA/Stellantis','mahindra':'Mahindra','chinese':'Chinese Brands','generic':'Generic'};
 function applyFormCfg(){const brand=document.getElementById('f-br')?.value||'';const cfg=brand?effFieldCfgSub(brand):null;
 FORM_FIELDS_CFG.forEach(f=>{const el=document.getElementById(f.fid);if(!el)return;const wrap=el.closest('.fd');if(!wrap)return;
 const st=cfg?cfg[f.key]:(f.def||'optional');wrap.style.display=st==='hidden'?'none':'';el.required=st==='required';
-const lab=wrap.querySelector('label');if(lab){let star=lab.querySelector('.rq-dyn');if(st==='required'){if(!star){star=document.createElement('span');star.className='rq rq-dyn';star.textContent=' *';lab.appendChild(star);}}else if(star)star.remove();}});
+const lab=wrap.querySelector('label');if(lab){let star=lab.querySelector('.rq-dyn');if(st==='required'){if(!star){star=document.createElement('span');star.className='rq rq-dyn';star.textContent=' *';lab.appendChild(star);}}else if(star)star.remove();const opt=lab.querySelector('.opt');if(opt)opt.style.display=(st==='required')?'none':'';}});
 const _dreq=brand?effDocReqSub(brand):[];['oldpart','newpart','odo','vinphoto','front','rear','installed','cmedia','diag','docs'].forEach(slot=>{const z=document.getElementById('fl-'+slot);if(!z)return;const wrap=z.closest('.fd');if(!wrap)return;const lab=wrap.querySelector('label');if(!lab)return;let star=lab.querySelector('.rq-dyn');if(_dreq.includes(slot)){if(!star){star=document.createElement('span');star.className='rq rq-dyn';star.textContent=' *';lab.appendChild(star);}}else if(star)star.remove();});
 updChk();}
 function renderAdmin(){renderBrandCfg();renderUsers();renderWarrantyCfg();renderDocReq();populateBrandReqSel();renderBrandReq();renderBrandCur();}
@@ -781,12 +775,10 @@ if(SUBTYPE==='preapproval')d=d.filter(s=>s!=='newpart'&&s!=='installed');
 if(SUBTYPE==='goodwill'&&!d.includes('docs'))d.push('docs');
 return d;}
 function effDocReq(brand){const prof=BRANDS[brand]||'generic';const bb=LDocReqBrand()[brand];return bb!==undefined?bb:((LDocReq()[prof])||[]);}
-function missingFields(){const out=[];const brand=document.getElementById('f-br')?.value||'';if(!brand)return out;const cfg=effFieldCfgSub(brand);const add=(id,label)=>{const el=document.getElementById(id);if(el&&!String(el.value||'').trim())out.push({el:el,label:label});};add('f-vin','VIN');add('f-or','Repair Order No.');FORM_FIELDS_CFG.forEach(f=>{if(cfg[f.key]==='required')add(f.fid,f.label);});if(SUBTYPE==='goodwill')add('f-gwjust','Goodwill justification');effDocReqSub(brand).forEach(slot=>{if(!(AST[slot]||[]).length){const z=document.getElementById('fl-'+slot);const fd=z?z.closest('.fd'):null;if(fd)out.push({el:fd,label:(DOC_LABELS[slot]||slot),doc:true});}});return out;}
+function missingFields(){const out=[];const brand=document.getElementById('f-br')?.value||'';if(!brand)return out;const cfg=effFieldCfgSub(brand);const add=(id,label)=>{const el=document.getElementById(id);if(el&&!String(el.value||'').trim())out.push({el:el,label:label});};FORM_FIELDS_CFG.forEach(f=>{if(cfg[f.key]==='required')add(f.fid,f.label);});if(SUBTYPE==='goodwill')add('f-gwjust','Goodwill justification');effDocReqSub(brand).forEach(slot=>{if(!(AST[slot]||[]).length){const z=document.getElementById('fl-'+slot);const fd=z?z.closest('.fd'):null;if(fd)out.push({el:fd,label:(DOC_LABELS[slot]||slot),doc:true});}});return out;}
 function validateStep(n){const step=document.getElementById('s'+n);if(!step)return true;document.querySelectorAll('.field-err').forEach(e=>e.classList.remove('field-err'));const bad=[];if(n===1){const br=document.getElementById('f-br');if(br&&!br.value)bad.push(br);}missingFields().forEach(m=>{if(m.el&&step.contains(m.el))bad.push(m.el);});if(bad.length){bad.forEach(el=>el.classList.add('field-err'));try{bad[0].scrollIntoView({block:'center',behavior:'smooth'});}catch(_){}toast('Please fill the required fields highlighted in red before continuing.','e');return false;}return true;}
 function missingList(){const brand=document.getElementById('f-br')?.value||'';if(!brand)return['Brand'];
 const cfg=effFieldCfgSub(brand),miss=[];
-if(!(document.getElementById('f-vin')?.value||'').trim())miss.push('VIN');
-if(!(document.getElementById('f-or')?.value||'').trim())miss.push('Repair Order No.');
 FORM_FIELDS_CFG.forEach(f=>{if(cfg[f.key]==='required'){const el=document.getElementById(f.fid);if(el&&!String(el.value||'').trim())miss.push(f.label);}});
 if(SUBTYPE==='goodwill'&&!(document.getElementById('f-gwjust')?.value||'').trim())miss.push('Goodwill justification');
 effDocReqSub(brand).forEach(s=>{if(!(AST[s]||[]).length)miss.push('\ud83d\udcce '+(DOC_LABELS[s]||s));});
@@ -984,7 +976,7 @@ function renderWarrantyTable(){
   if(!tb)return;
   const entries=Object.entries(w);
   if(!entries.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;padding:12px;color:var(--tx3);font-family:var(--mo);font-size:11px">No coverages configured</td></tr>';return;}
-  tb.innerHTML=entries.map(([brand,v])=>`<tr><td style="font-weight:600">${brand} <span class="chip ${BRANDS[brand]||'generic'}" style="font-size:9px">${BRANDS[brand]||'?'}</span></td><td class="mn">${warMonths(v)} months</td><td class="mn">${(v.km||0).toLocaleString('pt-PT')} km</td><td><button class="btn bg bsm" onclick="delWarrantyEntry('${brand}')">✕</button></td></tr>`).join('');
+  tb.innerHTML=entries.map(([brand,v])=>`<tr><td style="font-weight:600">${brand}</td><td class="mn">${warMonths(v)} months</td><td class="mn">${(v.km||0).toLocaleString('pt-PT')} km</td><td><button class="btn bg bsm" onclick="delWarrantyEntry('${brand}')">✕</button></td></tr>`).join('');
 }
 function renderWarrantyCfg(){
   const sel=document.getElementById('war-br');

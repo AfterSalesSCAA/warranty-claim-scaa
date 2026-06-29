@@ -793,10 +793,10 @@ function populateBrandReqSel(){const s=document.getElementById('bro-brand');if(!
 function renderBrandReq(){const b=document.getElementById('bro-brand')?.value,el=document.getElementById('bro-body');if(!el)return;if(!b){el.innerHTML='<div style="font-size:11px;color:var(--tx3);font-family:var(--mo)">Select a brand above.</div>';return;}
 const cfg=effFieldCfg(b),docs=effDocReq(b),optL={required:'Required',optional:'Optional',hidden:'Hidden'};
 el.innerHTML='<div style="overflow-x:auto"><table class="ct" style="font-size:11px"><thead><tr><th>Field</th><th style="width:130px">Requirement</th></tr></thead><tbody>'+FORM_FIELDS_CFG.map(f=>'<tr><td>'+f.label+'</td><td><select id="bro-f-'+f.key+'" style="font-size:10px;padding:3px 6px;background:var(--sf2);border:1px solid var(--bd);border-radius:4px;color:var(--tx)">'+['required','optional','hidden'].map(o=>'<option value="'+o+'" '+(cfg[f.key]===o?'selected':'')+'>'+optL[o]+'</option>').join('')+'</select></td></tr>').join('')+'</tbody></table></div>'+
-'<div style="margin-top:12px"><strong style="font-size:11px">Required documents / photos:</strong><div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px">'+DOC_SLOTS.map(s=>'<label style="display:flex;gap:5px;align-items:center;font-size:10px;text-transform:none;cursor:pointer"><input type="checkbox" id="bro-d-'+s+'" style="width:auto" '+(docs.includes(s)?'checked':'')+'>'+(DOC_LABELS[s]||s)+'</label>').join('')+'</div></div>';}
+'<div style="margin-top:14px"><strong style="font-size:11px">Documents / photos:</strong><div style="overflow-x:auto;margin-top:8px"><table class="ct" style="font-size:11px"><thead><tr><th>Document / Photo</th><th style="width:130px">Requirement</th></tr></thead><tbody>'+DOC_SLOTS.map(s=>'<tr><td>'+(DOC_LABELS[s]||s)+'</td><td><select id="bro-d-'+s+'" style="font-size:10px;padding:3px 6px;background:var(--sf2);border:1px solid var(--bd);border-radius:4px;color:var(--tx)"><option value="required" '+(docs.includes(s)?'selected':'')+'>Required</option><option value="optional" '+(docs.includes(s)?'':'selected')+'>Optional</option></select></td></tr>').join('')+'</tbody></table></div></div>';}
 function saveBrandReq(){const b=document.getElementById('bro-brand')?.value;if(!b){toast('Select a brand first','e');return;}
 const bc=LBCfgBrand();bc[b]={};FORM_FIELDS_CFG.forEach(f=>{const el=document.getElementById('bro-f-'+f.key);if(el)bc[b][f.key]=el.value;});SBCfgBrand(bc);
-const dc=LDocReqBrand();dc[b]=DOC_SLOTS.filter(s=>document.getElementById('bro-d-'+s)?.checked);SDocReqBrand(dc);
+const dc=LDocReqBrand();dc[b]=DOC_SLOTS.filter(s=>document.getElementById('bro-d-'+s)?.value==='required');SDocReqBrand(dc);
 toast('Requirements for '+b+' saved','s');}
 function clearBrandReq(){const b=document.getElementById('bro-brand')?.value;if(!b)return;if(!confirm('Reset '+b+' to profile defaults?'))return;
 const bc=LBCfgBrand();delete bc[b];SBCfgBrand(bc);const dc=LDocReqBrand();delete dc[b];SDocReqBrand(dc);renderBrandReq();toast('Reset to profile defaults','s');}
@@ -1002,8 +1002,8 @@ function delWarrantyEntry(brand){
 function saveWarranty(){}
 
 // ── DOC CHECKLIST ADMIN ──
-const DOC_SLOTS=['oldpart','newpart','odo','vinphoto','front','rear','installed','docs'];
-const DOC_LABELS={oldpart:'Replaced Part',newpart:'New Part',odo:'Odometer',vinphoto:'VIN Photo',front:'Front exterior',rear:'Rear exterior',installed:'Installed Part',diag:'Diagnostic Report',docs:'Support Docs'};
+const DOC_SLOTS=['oldpart','newpart','odo','vinphoto','front','rear','installed','cmedia','diag','docs'];
+const DOC_LABELS={oldpart:'Replaced Part',newpart:'New Part',odo:'Odometer',vinphoto:'VIN Photo',front:'Front exterior',rear:'Rear exterior',installed:'Installed Part',cmedia:'Complaint photo/video',diag:'Diagnostic Report',docs:'Support Docs'};
 function renderDocReq(){
   const d=LDocReq(),el=document.getElementById('adm-docreq');
   if(!el)return;
@@ -1169,13 +1169,13 @@ function ccRefresh(){const reg=document.getElementById('cc-register'),an=documen
 function renderCCAnalytics(){
 const rows=ccFilteredRows();const el=document.getElementById('cc-analytics');if(!el)return;
 if(!rows.length){el.innerHTML="<div style='text-align:center;padding:40px;color:var(--tx3);font-family:var(--mo)'>No credit entries for this filter.</div>";return;}
-const num=v=>parseFloat(v)||0;const n=rows.length;
+const num=v=>parseFloat(v)||0;const n=rows.length;const _inv=r=>!!(String(r.invoice||'').trim());
 const vM=rows.reduce((s,r)=>s+num(r.vMarca),0),vD=rows.reduce((s,r)=>s+num(r.vDealer),0);
 const diff=vD-vM,diffPct=vM?Math.round(diff/vM*100):0;
-const inv=rows.filter(r=>r.faturacao==='SIM').length,invPct=Math.round(inv/n*100);
-const dafN=rows.filter(r=>r.daf==='SIM').length,dafPct=Math.round(dafN/n*100);
-const pendCnt=n-inv,pendVal=rows.filter(r=>r.faturacao!=='SIM').reduce((s,r)=>s+num(r.vDealer),0);
-const invVal=rows.filter(r=>r.faturacao==='SIM').reduce((s,r)=>s+num(r.vDealer),0);
+const inv=rows.filter(_inv).length,invPct=n?Math.round(inv/n*100):0;
+const dafN=rows.filter(r=>r.daf==='YES').length,dafPct=n?Math.round(dafN/n*100):0;
+const pendCnt=n-inv,pendVal=rows.filter(r=>!_inv(r)).reduce((s,r)=>s+num(r.vMarca),0);
+const invVal=rows.filter(_inv).reduce((s,r)=>s+num(r.vDealer),0);
 const bb={};rows.forEach(r=>{const b=r.brand||'—';bb[b]=bb[b]||{n:0,vM:0,vD:0};bb[b].n++;bb[b].vM+=num(r.vMarca);bb[b].vD+=num(r.vDealer);});
 const brandRows=Object.entries(bb).sort((a,b)=>b[1].vD-a[1].vD);const maxB=Math.max(1,...brandRows.map(x=>x[1].vD));
 const bc={};rows.forEach(r=>{const c=(r.country||'—');bc[c]=bc[c]||{n:0,vM:0,vD:0};bc[c].n++;bc[c].vM+=num(r.vMarca);bc[c].vD+=num(r.vDealer);});

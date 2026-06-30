@@ -111,6 +111,11 @@ textarea{resize:vertical;min-height:64px}
 .kg4{grid-template-columns:repeat(4,1fr)}
 .kp{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px 16px}
 .kp[onclick]{transition:.15s}.kp[onclick]:hover{border-color:var(--ac);box-shadow:0 0 0 2px rgba(59,130,246,.15);transform:translateY(-1px)}
+.filtpanel{border:1px solid var(--bd);border-radius:12px;padding:11px 14px;margin-bottom:12px;display:flex;flex-direction:column;gap:7px;background:var(--sf)}
+.filtrow{display:flex;gap:10px;align-items:flex-start}
+.filtlbl{flex:0 0 64px;font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;padding-top:6px}
+.chipwrap{display:flex;gap:5px;flex-wrap:wrap;align-items:center;flex:1;max-height:92px;overflow-y:auto;padding:1px}
+.filthint{font-size:10px;color:var(--tx3);font-family:var(--sa);padding-top:6px}
 .kl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);font-family:var(--sa);font-weight:600;margin-bottom:4px}
 .kv{font-size:21px;font-weight:700;font-family:var(--sa)}
 .ks{font-size:10px;color:var(--tx2);font-family:var(--mo);margin-top:1px}
@@ -459,25 +464,24 @@ input.field-err,select.field-err,textarea.field-err{border-color:var(--err)!impo
 </div>
 <div id="vstat" class="view">
   <div class="dh"><div><h1 id="stat-title">📊 Statistics & KPIs</h1><p>Real-time data</p></div><button class="btn bsm bg" onclick="xlStats()">⤓ Excel</button><button class="btn bg bsm" onclick="renderStats()">↻</button></div>
-  <div id="stat-filters" style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px">
-    <div style="font-size:11px;color:var(--tx3);font-family:var(--sa)">Click a brand to filter. Hold Ctrl (⌘ on Mac) and click to select several.</div>
-    <div id="stat-brandchips" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center"></div>
-    <div id="stat-countrychips" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center"></div>
-    <div id="stat-dealerchips" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center"></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <div id="stat-typechips" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center"></div>
-      <input type="text" id="st-fyr" placeholder="Year" oninput="renderStats()" style="max-width:80px">
-      <button class="btn bsm bg" onclick="statClearFilters()" style="margin-left:auto">✕ Clear filters</button>
-    </div>
+  <div id="stat-filters" class="filtpanel">
+    <div class="filtrow"><span class="filtlbl">Brand</span><div id="stat-brandchips" class="chipwrap"></div></div>
+    <div class="filtrow"><span class="filtlbl">Country</span><div id="stat-countrychips" class="chipwrap"></div></div>
+    <div class="filtrow" id="stat-dealerrow" style="display:none"><span class="filtlbl">Dealer</span><div id="stat-dealerchips" class="chipwrap"></div></div>
+    <div class="filtrow"><span class="filtlbl">Type</span><div id="stat-typechips" class="chipwrap"></div></div>
+    <div class="filtrow"><span class="filtlbl">Year</span><input type="text" id="st-fyr" placeholder="e.g. 2026" oninput="renderStats()" style="max-width:90px;height:28px"><span class="filthint">Pick a country to filter by dealer · Ctrl (⌘)+click for several</span><button class="btn bsm bg" onclick="statClearFilters()" style="margin-left:auto">✕ Clear all</button></div>
   </div>
   <div id="stat-body" style="padding-bottom:20px"></div>
 </div>
 <div id="vcc" class="view" style="padding:24px 28px">
   <div class="dh"><div><h1>Credit &amp; Invoice Control</h1><p id="cc-sub">—</p></div><button class="btn bsm bg" onclick="xlCC()">⤓ Excel</button><button class="btn bg bsm" onclick="ccRefresh()">↻</button></div>
   <div style="display:flex;gap:6px;margin-bottom:6px"><button class="ntab on" id="cc-tab-reg" onclick="ccSetView('register')">📋 Register</button><button class="ntab" id="cc-tab-an" onclick="ccSetView('analytics')">📊 Analytics</button></div>
-  <div id="cc-brandchips" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px"></div>
-  <div id="cc-countrychips" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px"></div>
-  <div id="cc-dealerchips" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px"></div>
+  <div class="filtpanel">
+    <div class="filtrow"><span class="filtlbl">Brand</span><div id="cc-brandchips" class="chipwrap"></div></div>
+    <div class="filtrow"><span class="filtlbl">Country</span><div id="cc-countrychips" class="chipwrap"></div></div>
+    <div class="filtrow" id="cc-dealerrow" style="display:none"><span class="filtlbl">Dealer</span><div id="cc-dealerchips" class="chipwrap"></div></div>
+    <div class="filtrow"><span class="filtlbl"></span><span class="filthint">Pick a country to filter by dealer · Ctrl (⌘)+click to select several</span></div>
+  </div>
   <div class="fb"><input type="text" id="cc-fyr" placeholder="Year" oninput="ccRefresh()" style="max-width:80px"><input type="text" id="cc-fsr" placeholder="Search NC / OR / invoice..." oninput="ccRefresh()" style="max-width:200px"><button class="btn bsm bp" onclick="ccAdd()">+ Row</button><button class="btn bsm" style="background:rgba(22,163,74,.13);color:#15803d;border:1px solid var(--ok)" onclick="ccImport()">⤓ Import credited claims</button><button class="btn bsm bg" onclick="ccExport()" style="margin-left:auto">↓ Export CSV</button></div>
   <div id="cc-register"><div class="ctw" style="overflow-x:auto"><table class="ct" id="cc-tbl"></table></div></div>
   <div id="cc-analytics" style="display:none"></div>
@@ -662,7 +666,7 @@ function statCountryClick(e,c){const m=e&&(e.ctrlKey||e.metaKey);if(m){const i=s
 function statDealerClick(e,d){const m=e&&(e.ctrlKey||e.metaKey);if(m){const i=statFilterDealers.indexOf(d);if(i>=0)statFilterDealers.splice(i,1);else statFilterDealers.push(d);}else{statFilterDealers=[d];}renderStats();}
 function statClearCountries(){statFilterCountries=[];renderStats();}
 function statClearDealers(){statFilterDealers=[];renderStats();}
-function statRenderGeoChips(){const cc=document.getElementById('stat-countrychips');if(cc){const cs=allCountries();cc.innerHTML='<span style="font-size:11px;color:var(--tx3);font-weight:700;margin-right:5px">Countries:</span>'+statChip('All',statFilterCountries.length===0,'statClearCountries()')+cs.map(c=>statChip(countryFlag(c)+c,statFilterCountries.includes(c),`statCountryClick(event,'${c.replace(/'/g,"\\'")}')`)).join('');}const dc=document.getElementById('stat-dealerchips');if(dc){const ds=dealersInCountries(statFilterCountries);dc.innerHTML='<span style="font-size:11px;color:var(--tx3);font-weight:700;margin-right:5px">Dealers:</span>'+statChip('All',statFilterDealers.length===0,'statClearDealers()')+ds.map(d=>statChip(d,statFilterDealers.includes(d),`statDealerClick(event,'${d.replace(/'/g,"\\'")}')`)).join('')+'<span style="font-size:10px;color:var(--tx3);margin-left:6px;font-family:var(--sa)">(Ctrl+click to select several)</span>';}}
+function statRenderGeoChips(){var _sdr=document.getElementById('stat-dealerrow');if(_sdr)_sdr.style.display=statFilterCountries.length?'':'none';const cc=document.getElementById('stat-countrychips');if(cc){const cs=allCountries();cc.innerHTML=statChip('All',statFilterCountries.length===0,'statClearCountries()')+cs.map(c=>statChip(countryFlag(c)+c,statFilterCountries.includes(c),`statCountryClick(event,'${c.replace(/'/g,"\\'")}')`)).join('');}const dc=document.getElementById('stat-dealerchips');if(dc){const ds=dealersInCountries(statFilterCountries);dc.innerHTML=statChip('All',statFilterDealers.length===0,'statClearDealers()')+ds.map(d=>statChip(d,statFilterDealers.includes(d),`statDealerClick(event,'${d.replace(/'/g,"\\'")}')`)).join('');}}
 function statChip(label,active,onclick,logoHtml){return `<span onclick="${onclick}" style="cursor:pointer;display:inline-flex;align-items:center;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;font-family:var(--sa);border:1px solid ${active?'var(--ac)':'var(--bd)'};background:${active?'var(--ac)':'var(--sf2)'};color:${active?'#fff':'var(--tx2)'}">${logoHtml||''}${label}</span>`;}
 function statToggle(arr,v){const i=arr.indexOf(v);if(i>=0)arr.splice(i,1);else arr.push(v);renderStats();}
 function statBrandClick(e,b){if(e&&(e.ctrlKey||e.metaKey)){statToggle(statFilterBrands,b);}else{statFilterBrands=[b];renderStats();}}
@@ -670,7 +674,7 @@ function statTypeClick(e,t){if(e&&(e.ctrlKey||e.metaKey)){statToggle(statFilterT
 function statClearBrands(){statFilterBrands=[];renderStats();}
 function statClearTypes(){statFilterTypes=[];renderStats();}
 function statFillDealers(){const sel=document.getElementById('st-fco');if(!sel||sel.tagName!=='SELECT')return;const cur=sel.value;const ds=[...new Set(LC().map(c=>c.dealer).filter(Boolean))].sort();sel.innerHTML='<option value="">All dealers</option>'+ds.map(d=>`<option ${d===cur?'selected':''}>${d}</option>`).join('');}
-function statRenderChips(){statRenderGeoChips();const bc=document.getElementById('stat-brandchips');if(bc){const brands=Object.keys(BRANDS).sort();bc.innerHTML='<span style="font-size:11px;color:var(--tx3);font-weight:700;margin-right:5px">Brands:</span>'+statChip('All',statFilterBrands.length===0,'statClearBrands()')+brands.map(b=>statChip(b,statFilterBrands.includes(b),`statBrandClick(event,'${b.replace(/'/g,"\\'")}')`,brandLogo(b))).join('');}const tc=document.getElementById('stat-typechips');if(tc){const types=[['warranty','Warranty'],['preapproval','Pre-Approval'],['goodwill','Goodwill']];tc.innerHTML='<span style="font-size:11px;color:var(--tx3);font-weight:700;margin-right:5px">Types:</span>'+statChip('All',statFilterTypes.length===0,'statClearTypes()')+types.map(([v,l])=>statChip(l,statFilterTypes.includes(v),`statTypeClick(event,'${v}')`)).join('');}}
+function statRenderChips(){statRenderGeoChips();const bc=document.getElementById('stat-brandchips');if(bc){const brands=Object.keys(BRANDS).sort();bc.innerHTML=statChip('All',statFilterBrands.length===0,'statClearBrands()')+brands.map(b=>statChip(b,statFilterBrands.includes(b),`statBrandClick(event,'${b.replace(/'/g,"\\'")}')`,brandLogo(b))).join('');}const tc=document.getElementById('stat-typechips');if(tc){const types=[['warranty','Warranty'],['preapproval','Pre-Approval'],['goodwill','Goodwill']];tc.innerHTML=statChip('All',statFilterTypes.length===0,'statClearTypes()')+types.map(([v,l])=>statChip(l,statFilterTypes.includes(v),`statTypeClick(event,'${v}')`)).join('');}}
 function statClearFilters(){statFilterBrands=[];statFilterTypes=[];statFilterCountries=[];statFilterDealers=[];const yr=document.getElementById('st-fyr');if(yr)yr.value='';renderStats();}
 function statFilteredClaims(){statRenderChips();const fco=(document.getElementById('st-fco')?.value||'').toLowerCase(),fyr=(document.getElementById('st-fyr')?.value||'').trim();return LC().filter(c=>(statFilterBrands.length===0||statFilterBrands.includes(c.brand))&&(statFilterTypes.length===0||statFilterTypes.includes(c.subType||'warranty'))&&(statFilterCountries.length===0||statFilterCountries.includes((DEALERS[c.dealer]||{}).country))&&(statFilterDealers.length===0||statFilterDealers.includes(c.dealer))&&(!fyr||(c.submittedAt&&String(new Date(c.submittedAt).getFullYear())===fyr)));}
 function renderStats(){
@@ -1189,14 +1193,14 @@ function ccCountryClick(e,c){const m=e&&(e.ctrlKey||e.metaKey);if(m){const i=ccF
 function ccDealerClick(e,d){const m=e&&(e.ctrlKey||e.metaKey);if(m){const i=ccFilterDealers.indexOf(d);if(i>=0)ccFilterDealers.splice(i,1);else ccFilterDealers.push(d);}else{ccFilterDealers=[d];}ccRefresh();}
 function ccClearCountries(){ccFilterCountries=[];ccRefresh();}
 function ccClearDealers(){ccFilterDealers=[];ccRefresh();}
-function ccRenderGeoChips(){const cc=document.getElementById('cc-countrychips');if(cc){const cs=allCountries();cc.innerHTML='<span style="font-size:11px;color:var(--tx3);font-weight:700;margin-right:5px">Countries:</span>'+ccChip('All',ccFilterCountries.length===0,'ccClearCountries()')+cs.map(c=>ccChip(countryFlag(c)+c,ccFilterCountries.includes(c),`ccCountryClick(event,'${c.replace(/'/g,"\\'")}')`)).join('');}const dc=document.getElementById('cc-dealerchips');if(dc){const ds=dealersInCountries(ccFilterCountries);dc.innerHTML='<span style="font-size:11px;color:var(--tx3);font-weight:700;margin-right:5px">Dealers:</span>'+ccChip('All',ccFilterDealers.length===0,'ccClearDealers()')+ds.map(d=>ccChip(d,ccFilterDealers.includes(d),`ccDealerClick(event,'${d.replace(/'/g,"\\'")}')`)).join('')+'<span style="font-size:10px;color:var(--tx3);margin-left:6px;font-family:var(--sa)">(Ctrl+click to select several)</span>';}}
+function ccRenderGeoChips(){var _cdr=document.getElementById('cc-dealerrow');if(_cdr)_cdr.style.display=ccFilterCountries.length?'':'none';const cc=document.getElementById('cc-countrychips');if(cc){const cs=allCountries();cc.innerHTML=ccChip('All',ccFilterCountries.length===0,'ccClearCountries()')+cs.map(c=>ccChip(countryFlag(c)+c,ccFilterCountries.includes(c),`ccCountryClick(event,'${c.replace(/'/g,"\\'")}')`)).join('');}const dc=document.getElementById('cc-dealerchips');if(dc){const ds=dealersInCountries(ccFilterCountries);dc.innerHTML=ccChip('All',ccFilterDealers.length===0,'ccClearDealers()')+ds.map(d=>ccChip(d,ccFilterDealers.includes(d),`ccDealerClick(event,'${d.replace(/'/g,"\\'")}')`)).join('');}}
 function ccChip(label,active,onclick,logoHtml){return `<span onclick="${onclick}" style="cursor:pointer;display:inline-flex;align-items:center;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;font-family:var(--sa);border:1px solid ${active?'var(--ac)':'var(--bd)'};background:${active?'var(--ac)':'var(--sf2)'};color:${active?'#fff':'var(--tx2)'}">${logoHtml||''}${label}</span>`;}
 function ccToggleBrand(b){const i=ccFilterBrands.indexOf(b);if(i>=0)ccFilterBrands.splice(i,1);else ccFilterBrands.push(b);ccRefresh();}
 function ccBrandClick(e,b){if(e&&(e.ctrlKey||e.metaKey)){ccToggleBrand(b);}else{ccFilterBrands=[b];ccRefresh();}}
 function ccClearBrands(){ccFilterBrands=[];ccRefresh();}
 function ccSetBrand(b){ccFilterBrands=b?[b]:[];ccRefresh();}
 function ccFillDealers(){const sel=document.getElementById('cc-fco');if(!sel||sel.tagName!=='SELECT')return;const cur=sel.value;const ds=[...new Set([...Object.keys(DEALERS||{}),...LCC().map(r=>r.country).filter(Boolean)])].sort();sel.innerHTML='<option value="">All dealers</option>'+ds.map(d=>`<option ${d===cur?'selected':''}>${d}</option>`).join('');}
-function ccRenderBrandChips(){ccRenderGeoChips();const el=document.getElementById('cc-brandchips');if(!el)return;const brands=Object.keys(BRANDS).sort();el.innerHTML='<span style="font-size:11px;color:var(--tx3);font-weight:700;margin-right:5px">Brands:</span>'+ccChip('All',ccFilterBrands.length===0,'ccClearBrands()')+brands.map(b=>ccChip(b,ccFilterBrands.includes(b),`ccBrandClick(event,'${b.replace(/'/g,"\\'")}')`,brandLogo(b))).join('')+'<span style="font-size:10px;color:var(--tx3);margin-left:6px;font-family:var(--sa)">(Ctrl+click to select several)</span>';}
+function ccRenderBrandChips(){ccRenderGeoChips();const el=document.getElementById('cc-brandchips');if(!el)return;const brands=Object.keys(BRANDS).sort();el.innerHTML=ccChip('All',ccFilterBrands.length===0,'ccClearBrands()')+brands.map(b=>ccChip(b,ccFilterBrands.includes(b),`ccBrandClick(event,'${b.replace(/'/g,"\\'")}')`,brandLogo(b))).join('');}
 function ccPopBrandFilter(){ccRenderBrandChips();}
 function ccFilteredRows(){ccRenderBrandChips();const fco=(document.getElementById('cc-fco')?.value||'').toUpperCase(),fyr=(document.getElementById('cc-fyr')?.value||'').trim(),fs=(document.getElementById('cc-fsr')?.value||'').toLowerCase();return LCC().filter(r=>(ccFilterBrands.length===0||ccFilterBrands.includes(r.brand))&&(ccFilterCountries.length===0||ccFilterCountries.includes((DEALERS[r.country]||{}).country))&&(ccFilterDealers.length===0||ccFilterDealers.includes(r.country))&&(!fyr||String(r.year||'').includes(fyr))&&(!fs||((r.cn||'')+(r.ors||'')+(r.invoice||'')+(r.comment||'')).toLowerCase().includes(fs)));}
 function ccSetView(v){ccView=v;const a=document.getElementById('cc-tab-reg'),b=document.getElementById('cc-tab-an');if(a)a.classList.toggle('on',v==='register');if(b)b.classList.toggle('on',v==='analytics');ccRefresh();}

@@ -373,13 +373,13 @@ input.field-err,select.field-err,textarea.field-err{border-color:var(--err)!impo
   <div class="ssc" id="ss"><div class="ssi">✓</div><h2 style="font-size:18px;font-weight:800">Warranty Claim Submitted!</h2><p style="color:var(--tx2);font-family:var(--mo)">Claim ID:</p><div class="cid" id="cidbox">—</div><div id="ss-sum" style="font-size:11px;color:var(--tx2);font-family:var(--mo)"></div><button class="btn bg" onclick="newClaim()" style="margin-top:10px">+ New Submission</button></div>
 </div>
 <div id="vd" class="view"><div id="bulk-bar" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:10px 16px;gap:8px;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:150"><span id="bulk-cnt" style="font-size:11px;font-family:var(--mo);color:var(--tx2);margin-right:4px">0 selected</span><button class="btn bsm" onclick="bulkAction('approved')">✓ Aprovar</button><button class="btn bsm be" onclick="bulkAction('rejected')">✕ Rejeitar</button><button class="btn bsm bg" onclick="bulkAction('archived')">📦 Arquivar</button><button class="btn bsm" onclick="clearBulk()" style="background:var(--sf2)">✕ Limpar</button></div>
-  <div class="dh"><div><h1>Back-Office — Importer</h1><p id="dsub">—</p></div><button class="btn bg bsm" onclick="rdb()">↻</button></div>
+  <div class="dh"><div><h1>Back-Office — Importer</h1><p id="dsub">—</p></div><button class="btn bsm bg" onclick="xlClaims(LC(),'back_office_claims')">⤓ Excel</button><button class="btn bg bsm" onclick="rdb()">↻</button></div>
   <div class="kg" id="dkpi"></div>
   <div class="fb"><input type="text" id="fsrch" placeholder="VIN, OR, ID..." oninput="filterC()" style="max-width:180px"><select id="fbr" onchange="filterC()"><option value="">All brands</option></select><select id="fst" onchange="filterC()"><option value="">All statuses</option><option value="pending">Pending</option><option value="analysis">Under Review</option><option value="approved">Approved</option><option value="credited">NC Credited</option><option value="rejected">Rejected</option><option value="paid">Paid</option><option value="archived">Archived</option></select><select id="fdl" onchange="filterC()"><option value="">All dealers</option></select><button class="btn bsm bg" onclick="exportCSV()" style="margin-left:auto">↓ Export CSV</button></div>
   <div class="ctw"><table class="ct"><thead><tr><th style="width:30px"><input type="checkbox" id="chk-all" onclick="toggleBulkAll(this)" style="width:auto"></th><th>Claim ID</th><th>Dealer</th><th>Country</th><th>Brand</th><th>VIN</th><th>OR</th><th>Date</th><th>Hours</th><th>Status</th><th>NC</th><th></th></tr></thead><tbody id="dtb"></tbody></table></div>
 </div>
 <div id="vnc" class="view">
-  <div class="dh"><div><h1>Brand NC &amp; Dealer Invoices</h1><p style="color:var(--tx2);font-size:11px;font-family:var(--mo)">Multi-OR NCs · dealer invoices · VAT excluded</p></div></div>
+  <div class="dh"><div><h1>Brand NC &amp; Dealer Invoices</h1><p style="color:var(--tx2);font-size:11px;font-family:var(--mo)">Multi-OR NCs · dealer invoices · VAT excluded</p></div><button class="btn bsm bg" onclick="xlNCFT()">⤓ Excel</button></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
     <div class="fc"><h2>New Brand NC</h2>
       <div style="display:flex;flex-direction:column;gap:11px">
@@ -400,7 +400,7 @@ input.field-err,select.field-err,textarea.field-err{border-color:var(--err)!impo
 </div>
 <!-- Labour Rates view removed -->
 <div id="vnet" class="view">
-  <div class="dh"><div><h1>Network — Dealers &amp; Brands</h1><p id="net-sub">—</p></div></div>
+  <div class="dh"><div><h1>Network — Dealers &amp; Brands</h1><p id="net-sub">—</p></div><button class="btn bsm bg" onclick="xlNet()">⤓ Excel</button></div>
   <div class="fb"><input type="text" id="net-s" placeholder="Filter dealer/country/brand..." oninput="renderNet()" style="max-width:240px"><button class="btn bsm bp" onclick="addDealerBtn()" style="margin-left:auto">+ Add Dealer</button></div>
   <div id="net-mgr" style="display:none">
     <div id="nd-form" class="fc" style="display:none;margin-bottom:14px">
@@ -425,7 +425,7 @@ input.field-err,select.field-err,textarea.field-err{border-color:var(--err)!impo
   <div class="ctw"><table class="ct"><thead><tr><th>Dealer</th><th>Country</th><th>Represented Brands</th><th>Manage</th></tr></thead><tbody id="net-tb"></tbody></table></div>
 </div>
 <div id="vadm" class="view">
-  <div class="dh"><div><h1>Administration</h1><p>Platform settings</p></div></div>
+  <div class="dh"><div><h1>Administration</h1><p>Platform settings</p></div><button class="btn bsm bg" onclick="xlAdmin()">⤓ Excel</button></div>
   <div class="adm-sec">
     <h2>💱 Brand Currencies</h2>
     <p style="font-size:11px;color:var(--tx3);margin-bottom:12px">Currency used for parts, labour and all values of each brand. Applies to NEW claims (existing claims keep the currency they were submitted with). Default: PSA = EUR, all others = USD.</p>
@@ -457,7 +457,7 @@ input.field-err,select.field-err,textarea.field-err{border-color:var(--err)!impo
   </div>
 </div>
 <div id="vstat" class="view">
-  <div class="dh"><div><h1 id="stat-title">📊 Statistics & KPIs</h1><p>Real-time data</p></div><button class="btn bg bsm" onclick="renderStats()">↻</button></div>
+  <div class="dh"><div><h1 id="stat-title">📊 Statistics & KPIs</h1><p>Real-time data</p></div><button class="btn bsm bg" onclick="xlStats()">⤓ Excel</button><button class="btn bg bsm" onclick="renderStats()">↻</button></div>
   <div id="stat-filters" style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px">
     <div style="font-size:11px;color:var(--tx3);font-family:var(--sa)">Click a brand to filter. Hold Ctrl (⌘ on Mac) and click to select several.</div>
     <div id="stat-brandchips" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center"></div>
@@ -471,7 +471,7 @@ input.field-err,select.field-err,textarea.field-err{border-color:var(--err)!impo
   <div id="stat-body" style="padding-bottom:20px"></div>
 </div>
 <div id="vcc" class="view" style="padding:24px 28px">
-  <div class="dh"><div><h1>Credit &amp; Invoice Control</h1><p id="cc-sub">—</p></div><button class="btn bg bsm" onclick="ccRefresh()">↻</button></div>
+  <div class="dh"><div><h1>Credit &amp; Invoice Control</h1><p id="cc-sub">—</p></div><button class="btn bsm bg" onclick="xlCC()">⤓ Excel</button><button class="btn bg bsm" onclick="ccRefresh()">↻</button></div>
   <div style="display:flex;gap:6px;margin-bottom:6px"><button class="ntab on" id="cc-tab-reg" onclick="ccSetView('register')">📋 Register</button><button class="ntab" id="cc-tab-an" onclick="ccSetView('analytics')">📊 Analytics</button></div>
   <div id="cc-brandchips" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px"></div>
   <div class="fb"><input type="text" id="cc-fco" placeholder="Dealer" oninput="ccRefresh()" style="max-width:140px"><input type="text" id="cc-fyr" placeholder="Year" oninput="ccRefresh()" style="max-width:80px"><input type="text" id="cc-fsr" placeholder="Search NC / OR / invoice..." oninput="ccRefresh()" style="max-width:200px"><button class="btn bsm bp" onclick="ccAdd()">+ Row</button><button class="btn bsm" style="background:rgba(22,163,74,.13);color:#15803d;border:1px solid var(--ok)" onclick="ccImport()">⤓ Import credited claims</button><button class="btn bsm bg" onclick="ccExport()" style="margin-left:auto">↓ Export CSV</button></div>
@@ -479,7 +479,7 @@ input.field-err,select.field-err,textarea.field-err{border-color:var(--err)!impo
   <div id="cc-analytics" style="display:none"></div>
 </div>
 <div id="vdl" class="view">
-  <div class="dh"><div><h1>My Claims</h1><p id="dl-sub">—</p></div></div>
+  <div class="dh"><div><h1>My Claims</h1><p id="dl-sub">—</p></div><button class="btn bsm bg" onclick="xlClaims(LC().filter(c=>c.dealer===SESSION.dealer),'my_claims')">⤓ Excel</button></div>
   <div class="kg kg4" id="dkpi2"></div>
   <div id="dl-returned"></div>
   <div class="ctw"><table class="ct"><thead><tr><th>Claim ID</th><th>Brand</th><th>VIN</th><th>OR</th><th>Date</th><th>Hours</th><th>Status</th><th>NC</th><th>FT</th><th></th></tr></thead><tbody id="dtb2"></tbody></table></div>
@@ -488,6 +488,7 @@ input.field-err,select.field-err,textarea.field-err{border-color:var(--err)!impo
 <div class="mol" id="mol" onclick="if(event.target===this)cm()"><div class="mod"><div class="mhd"><div><h2 id="mtit">—</h2><p id="msub">—</p></div><button class="mcl" onclick="cm()">✕</button></div><div class="mb" id="mbody"></div></div></div>
 <div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 
 // ════ SUPABASE BACKEND ════
@@ -1121,6 +1122,13 @@ function bulkAction(st){
 }
 
 // ── EXPORT CSV ──
+function dlXLSX(fname,sheets){if(typeof XLSX==='undefined'){toast('Excel library still loading — try again in a moment','e');return;}const wb=XLSX.utils.book_new();sheets.forEach(sh=>{const ws=XLSX.utils.aoa_to_sheet(sh.aoa);XLSX.utils.book_append_sheet(wb,ws,(sh.name||'Sheet').replace(/[\\\/?*\[\]:]/g,' ').slice(0,31));});XLSX.writeFile(wb,fname+'_'+new Date().toISOString().slice(0,10)+'.xlsx');toast('Excel exported','s');}
+function xlClaims(list,fname){const aoa=[['Claim ID','Dealer','Country','Brand','VIN','OR','Status','Submitted','Labour Hours','Accepted Labour','Accepted Materials','Accepted Sublet','Credited','Brand NC','Dealer Invoice','Out of Warranty']];(list||[]).forEach(x=>aoa.push([x.id,x.dealer||'',x.country||'',x.brand||'',x.vin||'',x.or||'',x.status||'',x.submittedAt?x.submittedAt.slice(0,10):'',parseFloat(x.laborHours)||0,acceptedMOVal(x),acceptedMaterialsVal(x),acceptedSubletVal(x),parseFloat(x.creditedAmount)||0,x.ncBrand||'',x.invoice||'',x.warrantyFlag?'YES':'']));dlXLSX(fname||'claims',[{name:'Claims',aoa:aoa}]);}
+function xlCC(){const all=LCC();const aoa=[['Year','Month','Dealer','Brand','Credit Note','Brand EUR','Dealer Invoice','Dealer EUR','ORs','Invoiced','DAF Sent','Comments']];all.forEach(r=>aoa.push([r.year||'',r.month||'',r.country||'',r.brand||'',r.cn||'',parseFloat(r.vMarca)||0,r.invoice||'',parseFloat(r.vDealer)||0,r.ors||'',(String(r.invoice||'').trim()?'YES':'NO'),(r.daf==='YES'?'YES':'NO'),r.comment||'']));dlXLSX('credit_control',[{name:'Register',aoa:aoa}]);}
+function xlNCFT(){const ncs=LNC(),fts=LFT();const nc=[['Credit Note No.','Value','Currency','ORs','Created']];ncs.forEach(n=>nc.push([n.id||'',parseFloat(n.value)||0,n.currency||'',(n.orIds||[]).length,n.createdAt?n.createdAt.slice(0,10):'']));const ft=[['Dealer Invoice No.','Dealer','Value','ORs','Created']];fts.forEach(f=>ft.push([f.id||f.num||'',f.dealer||'',parseFloat(f.value)||0,(f.orIds||[]).length,f.createdAt?f.createdAt.slice(0,10):'']));dlXLSX('nc_ft',[{name:'Brand NCs',aoa:nc},{name:'Dealer Invoices',aoa:ft}]);}
+function xlNet(){const aoa=[['Dealer','Country','Represented Brands']];Object.keys(DEALERS).sort().forEach(d=>aoa.push([d,(DEALERS[d]&&DEALERS[d].country)||'',((DEALERS[d]&&DEALERS[d].brands)||[]).join(', ')]));dlXLSX('network',[{name:'Dealers',aoa:aoa}]);}
+function xlStats(){const all=(typeof statFilteredClaims==='function')?statFilteredClaims():LC();const sa=[['Status','Count']];['pending','analysis','approved','credited','rejected','paid','archived','returned'].forEach(st=>sa.push([st,all.filter(c=>c.status===st).length]));const bb={};all.forEach(c=>{const b=c.brand||'—';bb[b]=bb[b]||{n:0,cr:0};bb[b].n++;bb[b].cr+=parseFloat(c.creditedAmount)||0;});const ba=[['Brand','Claims','Credited EUR']];Object.entries(bb).sort((a,b)=>b[1].n-a[1].n).forEach(([b,v])=>ba.push([b,v.n,v.cr]));const dd={};all.forEach(c=>{const d=c.dealer||'—';dd[d]=dd[d]||{n:0,cr:0};dd[d].n++;dd[d].cr+=parseFloat(c.creditedAmount)||0;});const da=[['Dealer','Claims','Credited EUR']];Object.entries(dd).sort((a,b)=>b[1].n-a[1].n).forEach(([d,v])=>da.push([d,v.n,v.cr]));dlXLSX('statistics',[{name:'By Status',aoa:sa},{name:'By Brand',aoa:ba},{name:'By Dealer',aoa:da}]);}
+function xlAdmin(){const fa=[['Brand','Field / Document','Requirement']];Object.keys(BRANDS).sort().forEach(b=>{const cfg=effFieldCfg(b);FORM_FIELDS_CFG.forEach(f=>fa.push([b,f.label,cfg[f.key]||'optional']));const docs=effDocReq(b);DOC_SLOTS.forEach(sl=>fa.push([b,(DOC_LABELS[sl]||sl)+' (document)',docs.includes(sl)?'required':'optional']));});const wa=[['Brand','Warranty Months','KM Limit']];const w=LWarranty();Object.entries(w).forEach(([b,v])=>wa.push([b,warMonths(v),v.km||0]));dlXLSX('admin_configuration',[{name:'Field & Doc Config',aoa:fa},{name:'Warranty Coverage',aoa:wa}]);}
 function exportCSV(){
   const all=LC();
   const hdrs=['ID','Dealer','Country','Brand','VIN','OR','Status','Submitted','Accepted Labour (€)','Accepted Materials (€)','Accepted Sublet (€)','Credited (€)','Invoice','Out of Warranty'];

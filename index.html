@@ -719,7 +719,7 @@ el.innerHTML='';
 const tip=function(nm,cnt,sum){return "<div class='hoverinfo' style='background:#fff;color:#0f172a;border:1px solid #e2e8f0;padding:7px 11px;font-size:12px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.14);max-width:260px'><b>"+nm+"</b> &middot; "+(cnt||0)+" claim(s)<div style='margin-top:3px;color:#475569;font-size:11px;line-height:1.5'>"+sum+"</div></div>";};
 try{
 _africaMap=new Datamap({element:el,responsive:false,
- setProjection:function(element){const w=element.offsetWidth||700,h=element.offsetHeight||460;const pr=d3.geo.mercator().center([18,2]).scale(h*0.94).translate([w/2,h/2]);return {path:d3.geo.path().projection(pr),projection:pr};},
+ setProjection:function(element){const w=element.offsetWidth||700,h=element.offsetHeight||460;const pr=d3.geo.mercator().center([17,2]).scale(h*0.72).translate([w/2,h/2]);return {path:d3.geo.path().projection(pr),projection:pr};},
  fills:{defaultFill:'#eef2f7'},
  data:data,
  geographyConfig:{borderColor:'#cbd5e1',borderWidth:0.7,highlightOnHover:false,popupOnHover:true,popupTemplate:function(geo,d){if(!d)return "<div class='hoverinfo' style='background:#fff;color:#64748b;border:1px solid #e2e8f0;padding:6px 10px;font-size:12px;border-radius:8px'><b>"+geo.properties.name+"</b> &middot; no records</div>";return tip(d.cn||geo.properties.name,d.count,d.summary);}},
@@ -730,7 +730,7 @@ _africaMap=new Datamap({element:el,responsive:false,
   try{const gp=dm.path||d3.geo.path().projection(dm.projection);dm.svg.selectAll('.datamaps-subunit').each(function(geo){if(!data[geo.id])return;var c;try{c=gp.centroid(geo);}catch(_){}if(!c||isNaN(c[0]))return;dm.svg.append('text').attr('x',c[0]).attr('y',c[1]).attr('dy','.32em').attr('text-anchor','middle').style('font-size','9px').style('font-weight','800').style('fill','#0f172a').style('stroke','rgba(255,255,255,.8)').style('stroke-width','2.4px').style('paint-order','stroke').style('pointer-events','none').text(ISO3_ISO2[geo.id]||geo.id.slice(0,2));});}catch(er){}
  }
 });
-if(bubbles.length){try{_africaMap.bubbles(bubbles);}catch(e){}}
+if(bubbles.length){try{_africaMap.bubbles(bubbles);}catch(e){}try{const _pr=_africaMap.projection;bubbles.forEach(function(bb){const xy=_pr([bb.longitude,bb.latitude]);if(!xy||isNaN(xy[0]))return;_africaMap.svg.append('text').attr('x',xy[0]).attr('y',xy[1]-11).attr('text-anchor','middle').style('font-size','9px').style('font-weight','800').style('fill','#0f172a').style('stroke','rgba(255,255,255,.85)').style('stroke-width','2.6px').style('paint-order','stroke').style('pointer-events','none').text(bb.name);});}catch(e){}}
 if(!window._afrRz){window._afrRz=1;window.addEventListener('resize',function(){clearTimeout(window._afrTo);window._afrTo=setTimeout(renderAfricaMap,250);});}
 }catch(e){el.innerHTML="<div style='padding:24px;text-align:center;color:var(--tx3);font-family:var(--mo);font-size:11px'>Map unavailable</div>";}
 }
@@ -813,12 +813,12 @@ ${Object.entries(brands).sort((a,b)=>b[1].total-a[1].total).map(([brand,d])=>`
 <td style='text-align:center'>${d.total?Math.round(d.appv/d.total*100):0}%</td></tr>`).join('')}
 </tbody></table></div>
 <div class='adm-sec'><h2>${T('stat_trend')}</h2>
-<div style='display:flex;align-items:flex-end;gap:5px;height:90px;padding:4px 0 20px'>
+<div style='display:flex;align-items:flex-end;gap:5px;height:90px;padding:4px 0 30px'>
 ${Object.entries(monthMap).map(([mo,v])=>`
 <div style='flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;height:100%'>
 <div style='font-size:9px;color:var(--tx3)'>${v||''}</div>
 <div style='width:100%;background:var(--ac);opacity:0.85;border-radius:3px 3px 0 0;min-height:${v?4:0}px;height:${v?Math.round(v/maxM*60):0}px'></div>
-<div style='font-size:8px;color:var(--tx3);white-space:nowrap'>${mo.slice(5)}</div>
+<div style='font-size:8px;color:var(--tx2);font-weight:600;white-space:nowrap'>${mo.slice(5)}</div><div style='font-size:7px;color:var(--tx3);white-space:nowrap'>${mo.slice(0,4)}</div>
 </div>`).join('')}
 </div></div>
 </div>
